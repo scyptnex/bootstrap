@@ -10,22 +10,17 @@
 # ids and sshup.sh script, then checking out a copy of this repository.   #
 #-------------------------------------------------------------------------#
 
-function usage(){
-    grep "^#.*#$" $0
+function githubget(){
+    wget -O $TMP_DIR/$2 https://github.com/scyptnex/bootstrap/raw/master/$1/$2
 }
 
-while getopts "h" opt; do
-    case $opt in
-        h)
-            usage
-            exit 0
-            ;;
-        \?)
-            usage
-            exit 1
-            ;;
-    esac
-done
-shift $(($OPTIND -1))
+TMP_DIR=`mktemp -d`
+RSA_FILE="rsa_2048.aes-256-cbc.enc"
+githubget ssh "sshup.sh"
+githubget ssh "$RSA_FILE"
+githubget bin "crypt"
+chmod a+x "$TMP_DIR/sshup.sh"
+chmod a+x "$TMP_DIR/crypt"
+PATH="$PATH:$TMP_DIR" $TMP_DIR/sshup.sh "$TMP_DIR/$RSA_FILE"
+rm -rf $TMP_DIR
 
-echo $@
