@@ -1,0 +1,9 @@
+[base]
+git
+hg
+
+[latex]
+texlive-base
+
+[secure]
+ecryptfs

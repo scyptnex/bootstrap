@@ -16,10 +16,8 @@ if [ "$PS1" ]; then
     PS1="\[\e]0;\u@\h\a\]$PS1"
 fi
 
-if [ -d $HOME/computing ]; then
-    PATH=$PATH:$HOME/computing/bin
-elif [ -d $HOME/project/computing/bin ]; then
-    PATH=$PATH:$HOME/project/computing/bin
+if [ -d $HOME/bootstrap/bin ]; then
+    PATH=$PATH:$HOME/bootstrap/bin
 fi
 
 #
