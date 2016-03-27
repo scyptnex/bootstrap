@@ -1,0 +1,251 @@
+#! /usr/bin/env python
+
+"""mkfi - Making basic files for fun and profit!.
+
+Creates a file, and intelligently adds initial comment block and 
+surrounding data depending on the file type.
+If the file does not have a recognised extension, or no extension,
+the default is "sh".
+
+usage:
+    mkfi [OPTIONS] <file>
+
+Options:
+    -a "author"      set the author of the file (Nic H.)
+    -h --help        Display this help message
+    -m "message"     Inset this message into the comment block ("")
+    -x "extension"   Pretend this is the file's extension (sh)"""
+import sys
+import getopt
+import os
+import stat
+import textwrap
+from string import ascii_uppercase
+from datetime import date
+
+def fp(printString, fil):
+    #print printString
+    fil.write(printString + "\n")
+
+def toWidthString(stri, width, left, right, centered):
+    spc=width-len(stri + left + right)
+    assert spc >= 0
+    ret = stri + " "*spc + right
+    if(centered):
+        ret = " "*(spc//2) + stri + " "*(spc - spc//2) + right
+    return left + ret.rstrip()
+
+def writeCommentBlock(fileName, author, message, commentBlock, width, fil):
+    assert len(commentBlock[0]) == len(commentBlock[3]) # top left/mid left
+    assert len(commentBlock[0]) == len(commentBlock[5]) # top left/bottom left
+    assert len(commentBlock[2]) == len(commentBlock[4]) # top right/mid right
+    assert len(commentBlock[2]) == len(commentBlock[7]) # top right/bottom right
+    assert len(commentBlock[1]) == len(commentBlock[6]) # top center/bottom center
+    tl = commentBlock[0]
+    bl = commentBlock[5]
+    if(len(commentBlock[1]) != 0):
+        tl = tl + (width*commentBlock[1])[:width-len(commentBlock[0])-len(commentBlock[2])] + commentBlock[2]
+        bl = bl + (width*commentBlock[6])[:width-len(commentBlock[5])-len(commentBlock[7])] + commentBlock[7]
+
+    fp(tl, fil)
+    fp(toWidthString(fileName, width, commentBlock[3], commentBlock[4], True), fil)
+    fp(toWidthString("", width, commentBlock[3], commentBlock[4], False), fil)
+    fp(toWidthString("Author: " + author, width, commentBlock[3], commentBlock[4], False), fil)
+    fp(toWidthString(date.today().strftime("Date: %Y-%b-%d"), width, commentBlock[3], commentBlock[4], False), fil)
+    if(len(message) != 0):
+        fp(toWidthString("", width, commentBlock[3], commentBlock[4], False), fil)
+        wrapper = textwrap.TextWrapper()
+        wrapper.width = width - len(commentBlock[3]) - len(commentBlock[4])
+        for line in wrapper.wrap(message):
+            fp(toWidthString(line, width, commentBlock[3], commentBlock[4], False), fil)
+    fp(bl, fil)
+
+def writeFile(dirPath, fileName, message, author, extension):
+
+    block = {}
+    block["c"] = ("/* ", "", "", " * ", "", " */", "", "")
+    block["h"] = block["c"]
+    block["sh"] = ("#-", "-", "-#", "# ", " #", "#-", "-", "-#")
+    block["py"] = ("'''", "-", "-+ ", " | ", " | ", " +-", "-", "'''")
+    block["java"] = ("/**", "*", "** ", " * ", " * ", " **", "*", "**/")
+    block["tex"] = ("%=", "=", "=%", "% ", " %", "%=", "=", "=%")
+
+    # Process filename for its extension/names
+    dotIndex = fileName.rfind(".")
+    fType = "sh"
+    humanName = fileName
+    if(dotIndex != -1):
+        fType = fileName[dotIndex+1:]
+        humanName = fileName[:dotIndex]
+    if(fType in ("hh", "hpp")):
+        fType = "h"
+    elif(fType in ("cc", "cpp")):
+        fType = "c"
+    if(not block.has_key(fType)):
+        fType = "sh"
+    if(len(extension) != 0):
+        fType = extension
+        if(not block.has_key(extension)):
+            print "Unrecognised extension", extension
+            sys.exit(1)
+    names = ''.join([" %s" % x if x.isupper() else x for x in humanName.replace("-"," ").replace("_"," ")]).split()
+
+    path = os.path.join(dirPath, fileName)
+    f = open(path, "w")
+    # Header info and comment block
+    if(fType == "sh"):
+        fp("#! /usr/bin/env bash\n", f)
+    elif(fType == "py"):
+        fp("#! /usr/bin/env python\n", f)
+    writeCommentBlock(fileName, author, message, block[fType], 75, f)
+    fp("", f)
+    # Template
+    if(fType == "h"):
+        fp("#ifndef __%s_H__" % "_".join(names).upper(), f)
+        fp("#define __%s_H__" % "_".join(names).upper(), f)
+        fp("", f)
+        fp("#include <iostream>", f)
+        fp("", f)
+        fp("class %s {" % humanName, f)
+        fp("public:", f)
+        fp("    %s();" % humanName, f)
+        fp("    virtual ~%s();" % humanName, f)
+        fp("    void dump() const{std::cout << *this;}", f)
+        fp("//friends", f)
+        fp("    friend std::ostream& operator<<(std::ostream&, const %s&);" % humanName, f)
+        fp("};", f)
+        fp("", f)
+        fp("std::ostream& operator<<(std::ostream&, const %s&);" % humanName, f)
+        fp("", f)
+        fp("#endif /* __%s_H__ */" % "_".join(names).upper(), f)
+    elif(fType == "c"):
+        fp("#include \"%s.h\"" % humanName, f)
+        fp("", f)
+        fp("using namespace std;", f)
+        fp("", f)
+        fp("//Default Constructor", f)
+        fp("%s::%s() {" % (humanName, humanName), f)
+        fp("    //TODO implementation", f)
+        fp("}", f)
+        fp("", f)
+        fp("//Default Destructor", f)
+        fp("%s::~%s() {" % (humanName, humanName), f)
+        fp("    //TODO implementation", f)
+        fp("}", f)
+        fp("", f)
+        fp("//Stream output", f)
+        fp("ostream& operator<<(ostream& os, const %s& obj) {" % humanName, f)
+        fp("    return os << \"%s@\" << &obj;" % humanName, f)
+        fp("}", f)
+    elif(fType == "java"):
+        fp("public class %s {" % humanName, f)
+        fp("", f)
+        fp("    public static void main(String[] args){", f)
+        fp("        System.out.println(\"Hello World!\");", f)
+        fp("    }", f)
+        fp("", f)
+        fp("}", f)
+    elif(fType == "py"):
+        fp("__doc__ = \"\"\"%s" % humanName, f)
+        fp("This is the Docstring\"\"\"", f)
+        fp("", f)
+        fp("import sys", f)
+        fp("import getopt", f)
+        fp("", f)
+        fp("def %s():" % humanName, f)
+        fp("    try:", f)
+        fp("        opts, args = getopt.getopt(sys.argv[1:], \"h\", [\"help\"])", f)
+        fp("    except getopt.error, msg:", f)
+        fp("        print msg", f)
+        fp("        print \"for help use --help\"", f)
+        fp("        sys.exit(2)", f)
+        fp("    for o, a in opts:", f)
+        fp("        if o in (\"-h\", \"--help\"):", f)
+        fp("            print __doc__", f)
+        fp("            sys.exit(0)", f)
+        fp("    print str(args)", f)
+        fp("", f)
+        fp("if __name__ == \"__main__\":", f)
+        fp("    %s()" % humanName, f)
+    elif(fType == "tex"):
+        fp("\\documentclass{article}", f)
+        fp("", f)
+        fp("\\title{%s}" % " ".join(names).title(), f)
+        fp("\\author{%s}" % author, f)
+        fp("\\date{\\today}", f)
+        fp("", f)
+        fp("\\begin{document}", f)
+        fp("", f)
+        fp("\\maketitle", f)
+        fp("", f)
+        if(len(message) != 0):
+            fp("%s" % message, f)
+            fp("", f)
+        fp("\\end{document}", f)
+    else:
+        fp("function usage(){", f)
+        fp("    grep \"^#.*#$\" $0", f)
+        fp("}", f)
+        fp("", f)
+        fp("while getopts \"h\" opt; do", f)
+        fp("    case $opt in", f)
+        fp("        h)", f)
+        fp("            usage", f)
+        fp("            exit 0", f)
+        fp("            ;;", f)
+        fp("        \?)", f)
+        fp("            usage", f)
+        fp("            exit 1", f)
+        fp("            ;;", f)
+        fp("    esac", f)
+        fp("done", f)
+        fp("shift $(($OPTIND -1))", f)
+        fp("", f)
+        fp("echo $@", f)
+    f.close()
+    if(fType == "sh" or fileName.find(".") == -1):
+        os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
+def main():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hm:a:x:", ["help"])
+    except getopt.error, msg:
+        print msg
+        print "for help use --help"
+        sys.exit(2)
+
+    optMessage = ""
+    optAuthor = "Nic H."
+    optExtension = ""
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            print __doc__
+            sys.exit(0)
+        elif o in ("-m"):
+            optMessage = a
+        elif o in ("-a"):
+            optAuthor = a
+        elif o in ("-x"):
+            optExtension = a
+
+    if(len(args) != 1):
+        print "Please provide a filename"
+        print __doc__
+        sys.exit(1)
+
+    if(os.path.exists(args[0])):
+        print "%s already exists" % (args[0])
+        sys.exit(1)
+    else:
+        dirPath=os.path.dirname(args[0])
+        if(not dirPath):
+            dirPath="."
+        if(os.path.isdir(dirPath)):
+            writeFile(dirPath, os.path.basename(args[0]), optMessage, optAuthor, optExtension)
+        else:
+            print "Non-existant directory %s" % dirPath
+            sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+

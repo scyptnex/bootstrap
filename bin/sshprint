@@ -1,0 +1,65 @@
+#! /usr/bin/env bash
+
+#-------------------------------------------------------------------------#
+#                                sshprint                                 #
+#                                                                         #
+# Author: Nic H.                                                          #
+# Date: 2016-Mar-21                                                       #
+#                                                                         #
+# Prints the file remotely on the specified printer.                      #
+#                                                                         #
+# Options:                                                                #
+#     -d  use default configuration (level 4W printer at USYD)            #
+#     -h  print this help message                                         #
+#     -p  specify the printer                                             #
+#     -s  specify the ssh server                                          #
+#-------------------------------------------------------------------------#
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+set -u
+set -e
+
+SERVER=""
+PRINTER=""
+
+while getopts "dhp:s:" opt; do
+    case $opt in
+        d)
+            PRINTER="pr1-419"
+            SERVER="$SSH_C1"
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        p)
+            PRINTER="$OPTARG"
+            ;;
+        s)
+            SERVER="$OPTARG"
+            ;;
+        \?)
+            usage >&2
+            exit 1
+            ;;
+    esac
+done
+shift $(($OPTIND -1))
+
+[ $# == 1 ] || (echo "Please specify the file to be printed" >&2; exit 1)
+[ -n "$SERVER" ] || (echo "Server not specified, use -s" >&2; exit 1)
+[ -n "$PRINTER" ] || (echo "Printer not specified, use -p" >&2; exit 1)
+
+echo "   File: $1"
+echo " Server: $SERVER"
+echo "Printer: $PRINTER"
+
+TMP=`ssh $SERVER mktemp`
+echo " Remote: $TMP"
+scp "$1" $SERVER:$TMP
+ssh $SERVER "lpr -V -P $PRINTER $TMP"
+ssh $SERVER "rm $TMP"
+

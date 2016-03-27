@@ -1,0 +1,8 @@
+#! /bin/bash
+
+if [ "x$1" == "x" ]; then
+    echo "Please input a profilable program"
+    exit 1
+fi
+
+gprof $1 | python $HOME/computing/python/gprof2dot.py | dot -Tpdf > $1.pdf

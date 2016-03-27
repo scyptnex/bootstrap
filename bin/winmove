@@ -1,0 +1,30 @@
+#!/bin/bash
+# resizes the window to full height and 50% width and moves into upper right corner
+
+if [ $1 == "u" ]; then
+    wmctrl -r :ACTIVE: -b add,maximized_vert,maximized_horz
+    exit
+elif [ $1 == "d" ]; then
+    wmctrl -r :ACTIVE: -b remove,maximized_vert,maximized_horz
+    exit
+fi
+
+# get width of screen and height of screen
+SCREEN_WIDTH=$(xwininfo -root | awk '$1=="Width:" {print $2}')
+SCREEN_HEIGHT=$(xwininfo -root | awk '$1=="Height:" {print $2}')
+PANEL_HEIGHT=$(xwininfo -name "xfce4-panel" | awk '$1=="Height:" {print $2}')
+MENU_HEIGHT=25
+
+# new width and height
+W=$(( $SCREEN_WIDTH / 2 ))
+H=$(( $SCREEN_HEIGHT - $PANEL_HEIGHT - $MENU_HEIGHT))
+
+# X, change to move left or right:
+
+# moving to the left:
+X=0
+[ $# -gt 0 ] && X=$(( $SCREEN_WIDTH / 2))
+
+Y=0
+
+wmctrl -r :ACTIVE: -b remove,maximized_vert,maximized_horz && wmctrl -r :ACTIVE: -e 0,$X,$Y,$W,$H

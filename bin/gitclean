@@ -1,0 +1,68 @@
+#! /usr/bin/env bash
+
+#-------------------------------------------------------------------------#
+#                                gitclean                                 #
+#                                                                         #
+# Author: Nic H.                                                          #
+# Date: 2016-Mar-18                                                       #
+#                                                                         #
+# Removes untracked files below the current directory (with user          #
+# confirmation                                                            #
+#                                                                         #
+# [OPTIONS]                                                               #
+# -a    Remvoe all files (not just those below my directory               #
+# -f    Do not ask for user permission                                    #
+# -h    Display this help message                                         #
+#-------------------------------------------------------------------------#
+
+set -e
+set -u
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+FAST=false
+HOME=`git rev-parse --show-toplevel`
+DIR="`pwd`"
+while getopts "afh" opt; do
+    case $opt in
+        a)
+            DIR="$HOME"
+            ;;
+        f)
+            FAST=true
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        \?)
+            usage
+            exit 1
+            ;;
+    esac
+done
+TMP=`mktemp`
+git status --porcelain | grep "^??" | cut -d " " -f 2 | awk -v home="$HOME/" '{print home $0}' | grep "^$DIR" | tee $TMP > /dev/null # hack to prevent -e from killing the script
+
+if [ -s $TMP ]; then
+    ANSWER=y
+    if [ "$FAST" != "true" ]; then
+        echo "+---------------------------+"
+        echo "| Remove these files? (Y/n) |"
+        echo "+---------------------------+"
+        cat $TMP
+        read ANSWER
+    else
+        cat $TMP
+    fi
+    if [ "$ANSWER" != "n" ]; then
+        cat $TMP | xargs rm
+    fi
+else
+    echo "already clean"
+fi
+
+rm $TMP
+

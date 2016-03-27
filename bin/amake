@@ -1,0 +1,22 @@
+#! /bin/sh
+
+sleep_until(){
+	while [ `make -q;echo $?` -eq 0 ]; do
+		sleep 1
+	done
+}
+
+while [ 1 -eq 1 ] ; do
+	echo "awaiting modification"
+	sleep_until
+	make $@
+	if [ $? -eq 0 ]; then
+		echo "Success"
+	else
+		echo "================="
+		echo "|     ERROR     |"
+		echo "================="
+		make -t $@
+	fi
+done
+

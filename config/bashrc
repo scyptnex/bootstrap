@@ -1,0 +1,42 @@
+#export PAGER="/bin/sh -c \"unset PAGER;col -b -x | vim -R -c 'set ft=man nomod nolist' -c 'set nu!' -c 'map q :q<CR>' -c 'map <SPACE> <C-D>' -c 'map b <C-U>' -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
+
+# function panda(){
+#     if [ "X$1" != "X" ] && [ -e $1 ] && [ -f $1 ]; then
+#         rm -f $2
+#         echo ${2:-${1%.[a-zA-Z0-9-_]*}.pdf} | xargs tempfile -n | xargs pandoc -f markdown $1 -o
+#     fi
+# }
+
+function vman(){
+    man -P "col -x -b" $@ | vim -R -c 'set ft=man nomod nolist' -c 'map q :q<CR>' -
+}
+
+if [ "$PS1" ]; then
+    PS1="\n\[$(tput bold)$(tput setaf 2)\]\u@\h: \[$(tput setaf 4)\]\w\[$(tput sgr0)\] \$ "
+    PS1="\[\e]0;\u@\h\a\]$PS1"
+fi
+
+if [ -d $HOME/computing ]; then
+    PATH=$PATH:$HOME/computing/bin
+elif [ -d $HOME/project/computing/bin ]; then
+    PATH=$PATH:$HOME/project/computing/bin
+fi
+
+#
+# Aliases
+#
+alias opn="xdg-open"
+alias panda="pandoc -f markdown -o PANDA.pdf"
+alias cman="man -P \"col -x -b\""
+
+#
+# Useful SSH
+#
+export SSH_C0="nhol8058@cpu0.it.usyd.edu.au"
+export SSH_C1="nhol8058@cpu1.it.usyd.edu.au"
+export SSH_C2="nhol8058@cpu2.it.usyd.edu.au"
+if [ `uname -n` == "ghesseran" ]; then
+    export SSH_C0="nhol8058@cpu0"
+    export SSH_C1="nhol8058@cpu1"
+    export SSH_C2="nhol8058@cpu2"
+fi
