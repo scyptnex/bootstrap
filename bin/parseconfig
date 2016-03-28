@@ -1,0 +1,68 @@
+#! /usr/bin/env bash
+
+#-------------------------------------------------------------------------#
+#                               parseconfig                               #
+#                                                                         #
+# Author: Nic H.                                                          #
+# Date: 2016-Mar-29                                                       #
+#                                                                         #
+# A simple parser for configuration files, reads the configuration file   #
+# from stdin. projects the configuration headers given by the user.       #
+#                                                                         #
+# Usage:                                                                  #
+#    parseconfig [OPTIONS] {HEADERS}                                      #
+#    reads a config file (from stdin) and outputs the lines under a       #
+#    header in the list of HEADERS.                                       #
+#                                                                         #
+# Options:                                                                #
+#    -a           Print all headers in the file                           #
+#    -f <file>    Use <file> as the config file to be parsed              #
+#    -h           Display this help message                               #
+#-------------------------------------------------------------------------#
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+function prepend() {
+    while read LINE; do
+        if [[ "$LINE" =~ ^\[.*\]$ ]]; then
+            CUR_HEAD=`echo $LINE | sed -e 's/^\[//' -e 's/\]$//'`
+        else
+            echo "$CUR_HEAD $LINE"
+        fi
+    done
+}
+
+CUR_HEAD=""
+INPUT="-"
+ALL=false
+while getopts "af:h" opt; do
+    case $opt in
+        a)
+            ALL=true
+            ;;
+        f)
+            INPUT="$OPTARG"
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        \?)
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $(($OPTIND -1))
+PROJECTION=""
+for ARG in $@; do
+    PROJECTION="$PROJECTION|($ARG)"
+done
+PROJECTION="^${PROJECTION#|} "
+if [ "$ALL" == "true" ]; then
+    PROJECTION=""
+fi
+
+cat $INPUT | sed '/^$/d' | prepend | grep -E "$PROJECTION"
