@@ -22,7 +22,7 @@ DECRYP=`mktemp`
 crypt -f -o $DECRYP $CRYPTF
 
 if [ -d "$SSH_DIR" ]; then
-    [ -f "$SSH_PRIV" ] && mv "$SSH_PRIV" "$(mktemp $SSH_PUBL.backup.XXXX)"
+    [ -f "$SSH_PRIV" ] && mv "$SSH_PRIV" "$(mktemp $SSH_PRIV.backup.XXXX)"
     [ -f "$SSH_PUBL" ] && mv "$SSH_PUBL" "$(mktemp $SSH_PUBL.backup.XXXX)"
 else
     mkdir -p "$SSH_DIR"
