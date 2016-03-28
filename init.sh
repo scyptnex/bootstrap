@@ -19,7 +19,9 @@ function githubget(){
 
 # ensure the current shell is bash
 # this is a heuristic only, but any user who malliciously set it when not in bash deserves what they get (or asks for it)
-if [ "$BASH" != "" ]; then
+if [ "$BASH" == "" ]; then
+    echo "Script requires bash (Bourne Again SHell)" >&2
+    exit 1
 fi
 
 # check that git and openssl exist
@@ -39,13 +41,17 @@ chmod a+x "$TMP_DIR/sshup.sh"
 chmod a+x "$TMP_DIR/crypt"
 
 # set the ssh identity as my main user
-PATH="$TEMP_DIR:$PATH" $TMP_DIR/sshup.sh "$TMP_DIR/$RSA_FILE"
+PATH="$TMP_DIR:$PATH" $TMP_DIR/sshup.sh "$TMP_DIR/$RSA_FILE"
 
 # clean up
 rm -rf $TMP_DIR
 
 # clone the bootstrap repo
-git clone git@github.com:scyptnex/bootstrap.git $REPO_DIR
+if [ -d $REPO_DIR ]; then
+    (cd $REPO_DIR; git fetch; git merge origin/master)
+else
+    git clone git@github.com:scyptnex/bootstrap.git $REPO_DIR
+fi
 
 # linking configurations
 for CFG in $REPO_DIR/config/*; do
