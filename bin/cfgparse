@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 #-------------------------------------------------------------------------#
-#                               parseconfig                               #
+#                                cfgparse                                 #
 #                                                                         #
 # Author: Nic H.                                                          #
 # Date: 2016-Mar-29                                                       #
@@ -10,7 +10,7 @@
 # from stdin. projects the configuration headers given by the user.       #
 #                                                                         #
 # Usage:                                                                  #
-#    parseconfig [OPTIONS] {HEADERS}                                      #
+#    cfgparse [OPTIONS] {HEADERS}                                         #
 #    reads a config file (from stdin) and outputs the lines under a       #
 #    header in the list of HEADERS.                                       #
 #                                                                         #
