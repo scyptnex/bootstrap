@@ -1,0 +1,73 @@
+#! /usr/bin/env bash
+
+#-------------------------------------------------------------------------#
+#                                 cfgkey                                  #
+#                                                                         #
+# Author: Nic H.                                                          #
+# Date: 2016-Mar-29                                                       #
+#                                                                         #
+# Add or remove keys (lines) from a configuration file.                   #
+#                                                                         #
+# Options:                                                                #
+#    -a <header>:<key>   Add <key> under header <header>                  #
+#    -f <file>           Use <file> as the config file (instead of stdin) #
+#    -h                  Display this help message                        #
+#    -r <reg>            Delete keys matching <reg>                       #
+#                                                                         #
+#-------------------------------------------------------------------------#
+
+set -e
+set -u
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+function capture() {
+    if [ "$1" == "-" ]; then
+        cat - # i.e. do nothing
+    else
+        local TMPF=`mktemp`
+        cat - > $TMPF
+        mv "$TMPF" "$1"
+    fi
+}
+
+INPUT="-"
+ADDITIONS=""
+REMOVE="" # set to -v if we actually are removing anything
+REMOVALS=""
+while getopts "a:f:hr:" opt; do
+    case $opt in
+        a)
+            ADDITIONS="$ADDITIONS\n$OPTARG"
+            ;;
+        f)
+            INPUT="$OPTARG"
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        r)
+            REMOVE="-v"
+            REMOVALS="$REMOVALS|($OPTARG)"
+            ;;
+        \?)
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+# Perform the actual conversion
+# This internal python program is troublesome, it tries to group and order the keys in an intelligent way:
+#  - sort based on ASCII order
+#  - sort again ignoring nonalphanum characters
+# In my version of python the second sort doesnt reorder "equal" keys in the first sort, but im not sure this will always be true
+cat <(cfgparse -a -f "$INPUT") <(echo -e "$ADDITIONS" | sed -e '/^$/d') | grep -E $REMOVE "^${REMOVALS#|}" | grep ":" | python -c 'import sys;
+import re;
+lines=[l.strip() for l in sys.stdin.readlines()];
+lines.sort();
+lines.sort(key=lambda a : re.sub("[^a-zA-Z0-9]", "", a.split(":")[0].lower()));
+print "\n".join(lines)' | uniq | cfgparse -a -r | capture "$INPUT"
