@@ -63,12 +63,10 @@ done
 
 # Perform the actual conversion
 # This internal python program is troublesome, it tries to group and order the keys in an intelligent way:
-#  - sort based on ASCII order
-#  - sort again ignoring nonalphanum characters
-# In my version of python the second sort doesnt reorder "equal" keys in the first sort, but im not sure this will always be true
+#  - sort primarily on alphanum characters
+#  - secondarily on the ascii values of the whole string
 cat <(cfgparse -a -f "$INPUT" | grep -E $REMOVE "^${REMOVALS#|}") <(echo -e "$ADDITIONS" | sed -e '/^$/d') | grep ":" | python -c 'import sys;
 import re;
 lines=[l for l in sys.stdin.readlines()];
-lines.sort();
-lines.sort(key=lambda a : re.sub("[^a-zA-Z0-9]", "", a.split(":")[0].lower()));
+lines.sort(key=lambda a : "a" + re.sub("[^a-zA-Z0-9]", "", a.split(":")[0].lower()) + " " + a);
 print "\n".join(lines)' | uniq | cfgparse -a -r | capture "$INPUT"
