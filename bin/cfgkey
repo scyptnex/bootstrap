@@ -29,7 +29,8 @@ function capture() {
     else
         local TMPF=`mktemp`
         cat - > $TMPF
-        mv "$TMPF" "$1"
+        cat $TMPF > "$1"
+        rm $TMPF
     fi
 }
 
