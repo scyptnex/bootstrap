@@ -29,25 +29,23 @@ function usage(){
 }
 
 function append() {
-    while read LINE; do
-        NXT_HEAD=${LINE%%:*}
-        if [ "$CUR_HEAD" != "$NXT_HEAD" ]; then
-            CUR_HEAD="$NXT_HEAD"
-            echo
-            echo "[$CUR_HEAD]"
-        fi
-        echo "${LINE#*:}"
-    done
+    awk 'BEGIN{cur=""}{
+        if (substr($0,1,index($0,":")-1) != cur ) {
+            cur = substr($0,1,index($0,":")-1);
+            print "\n[" cur "]"
+        };
+        print substr($0,length(cur)+2)
+    }'
 }
 
 function prepend() {
-    while read LINE; do
-        if [[ "$LINE" =~ ^\[.*\]$ ]]; then
-            CUR_HEAD=`echo $LINE | sed -e 's/^\[//' -e 's/\]$//'`
-        else
-            echo "$CUR_HEAD:$LINE"
-        fi
-    done
+    awk 'BEGIN{cur=""}{
+        if ( $0 ~ /^\[.*\]$/) {
+            cur=substr($0, 2, length($0)-2)
+        } else {
+            print cur ":" $0
+        }
+    }'
 }
 
 CUR_HEAD=""

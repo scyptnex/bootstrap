@@ -66,9 +66,9 @@ done
 #  - sort based on ASCII order
 #  - sort again ignoring nonalphanum characters
 # In my version of python the second sort doesnt reorder "equal" keys in the first sort, but im not sure this will always be true
-cat <(cfgparse -a -f "$INPUT") <(echo -e "$ADDITIONS" | sed -e '/^$/d') | grep -E $REMOVE "^${REMOVALS#|}" | grep ":" | python -c 'import sys;
+cat <(cfgparse -a -f "$INPUT" | grep -E $REMOVE "^${REMOVALS#|}") <(echo -e "$ADDITIONS" | sed -e '/^$/d') | grep ":" | python -c 'import sys;
 import re;
-lines=[l.strip() for l in sys.stdin.readlines()];
+lines=[l for l in sys.stdin.readlines()];
 lines.sort();
 lines.sort(key=lambda a : re.sub("[^a-zA-Z0-9]", "", a.split(":")[0].lower()));
 print "\n".join(lines)' | uniq | cfgparse -a -r | capture "$INPUT"
