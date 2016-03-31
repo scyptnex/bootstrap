@@ -1,0 +1,63 @@
+#! /usr/bin/env bash
+
+#-------------------------------------------------------------------------#
+#                                  ssys5                                  #
+#                                                                         #
+# Author: Nic H.                                                          #
+# Date: 2016-Mar-31                                                       #
+#                                                                         #
+# A more general-purpose alternative to ssys4 which allows multiple       #
+# secure stores with different passwords to be chosen by the user.        #
+# Intelligently detects if the tag-base should also be run.               #
+#                                                                         #
+# Usage:                                                                  #
+#     ssys5 [-c] <path>                                                   #
+#     mounts the directory at <path> as the secure directory              #
+#                                                                         #
+# Options:                                                                #
+#     -c    create mode, create a new secure directory                    #
+#     -h    print this help message                                       #
+#-------------------------------------------------------------------------#
+
+set -e
+set -u
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+CREATE=false
+while getopts "ch" opt; do
+    case $opt in
+        c)
+            CREATE=true
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        \?)
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $(($OPTIND -1))
+
+# make sure everything is fine
+[ $# == 1 ] || (usage >&2; exit 1)
+[ -e ~/.Private ] && (echo "~/.Private already exists" >&2; exit 1)
+[ -e ~/Private ] && (echo "~/Private already exists" >&2; exit 1)
+
+# create the directory when necessary
+if [ $CREATE == "true" ]; then
+    [ -e "$1" ] && (echo "$1 already exists" >&2; exit 1)
+    mkdir -p "$1"
+fi
+
+[ -d "$1" ] || (echo "$1 is not a directory" >&2; exit 1)
+
+# Make ~/Private and symlink ~/.Private to the required directory
+ln -s $(readlink -f "$1") ~/.Private
+
+rm -f ~/.Private
