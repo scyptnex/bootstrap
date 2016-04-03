@@ -19,6 +19,7 @@
 #     -h    print this help message                                       #
 #     -k    kill an improperly closed session                             #
 #     -t    force the directory to run as a TagBase                       #
+#     -t    force the directory to run in wait mode                       #
 #-------------------------------------------------------------------------#
 
 set -e
@@ -37,9 +38,9 @@ function clean(){
 }
 
 CREATE=false
-TAG=false
+TAG=unknown
 TAG_BASE=`readlink -f ~/project/computing/TagBase`
-while getopts "chkt" opt; do
+while getopts "chktw" opt; do
     case $opt in
         c)
             CREATE=true
@@ -54,6 +55,9 @@ while getopts "chkt" opt; do
             ;;
         t)
             TAG=true
+            ;;
+        w)
+            TAG=false
             ;;
         \?)
             usage
@@ -101,7 +105,11 @@ echo
 
 # determine if we are in tag mode
 if [ -f ~/Private/zzList.txt ]; then
-    TAG=true
+    if [ $TAG == false ]; then
+        echo "Ignoring the TagBase meta-file"
+    else
+        TAG=true
+    fi
 fi
 if [ ! -f $TAG_BASE/Main.class ]; then
     [ $TAG == true ] && echo "Disabling the TagBase, you must compile it into $TAG_BASE"
