@@ -17,6 +17,8 @@
 # Options:                                                                #
 #     -c    create mode, create a new secure directory                    #
 #     -h    print this help message                                       #
+#     -k    kill an improperly closed session                             #
+#     -t    force the directory to run as a TagBase                       #
 #-------------------------------------------------------------------------#
 
 set -e
@@ -26,8 +28,18 @@ function usage(){
     grep "^#.*#$" $0
 }
 
+function clean(){
+    rm -rf ~/Private/.Trash*
+    ecryptfs-umount-private
+    rm ~/.Private
+    rm -r ~/.ecryptfs
+    rmdir ~/Private
+}
+
 CREATE=false
-while getopts "ch" opt; do
+TAG=false
+TAG_BASE=`readlink -f ~/project/computing/TagBase`
+while getopts "chkt" opt; do
     case $opt in
         c)
             CREATE=true
@@ -35,6 +47,13 @@ while getopts "ch" opt; do
         h)
             usage
             exit 0
+            ;;
+        k)
+            clean
+            exit 0
+            ;;
+        t)
+            TAG=true
             ;;
         \?)
             usage
@@ -48,16 +67,56 @@ shift $(($OPTIND -1))
 [ $# == 1 ] || (usage >&2; exit 1)
 [ -e ~/.Private ] && (echo "~/.Private already exists" >&2; exit 1)
 [ -e ~/Private ] && (echo "~/Private already exists" >&2; exit 1)
+[ -e ~/.ecryptfs ] && (echo "~/.ecryptfs already exists" >&2; exit 1)
 
 # create the directory when necessary
 if [ $CREATE == "true" ]; then
     [ -e "$1" ] && (echo "$1 already exists" >&2; exit 1)
     mkdir -p "$1"
+    ecryptfs-setup-private -w --noautomount
+    mv ~/.Private "$1/ssys_data"
+    mv ~/.ecryptfs/* "$1/"
+    rmdir ~/.ecryptfs
+    chmod a+w ~/Private
+    rm -r ~/Private
 fi
 
-[ -d "$1" ] || (echo "$1 is not a directory" >&2; exit 1)
+# exit if the user gave a non-directory
+[ -d "$1/ssys_data/" ] || (echo "$1 is not a ssys directory" >&2; exit 1)
 
 # Make ~/Private and symlink ~/.Private to the required directory
-ln -s $(readlink -f "$1") ~/.Private
+mkdir ~/Private
+ln -s $(readlink -f "$1/ssys_data") ~/.Private
 
-rm -f ~/.Private
+# make .ecryptfs and symlink all the metadata
+mkdir ~/.ecryptfs
+for FI in `ls "$1" | grep -v "^ssys_data$"`; do
+    ln -s $(readlink -f "$1/$FI") ~/.ecryptfs/$FI
+done
+
+# Mount the directory
+ecryptfs-mount-private
+xdg-open ~/Private
+echo
+
+# determine if we are in tag mode
+if [ -f ~/Private/zzList.txt ]; then
+    TAG=true
+fi
+if [ ! -f $TAG_BASE/Main.class ]; then
+    [ $TAG == true ] && echo "Disabling the TagBase, you must compile it into $TAG_BASE"
+    TAG=false
+fi
+
+# in tag mode, wait until the tagbase is closed, otherwise wait until the user hits return
+if [ $TAG == true ]; then
+    java -cp $TAG_BASE Main ~/Private
+else
+    echo "+-------------------------------------------+"
+    echo "| Directory unlocked, press <enter> to lock |"
+    echo "+-------------------------------------------+"
+    read line
+fi
+
+clean
+

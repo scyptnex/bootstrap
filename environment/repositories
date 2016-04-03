@@ -8,6 +8,7 @@ svn   uni        https://svn.it.usyd.edu.au/svn/nhol8058
 
 [project]
 git computing    git@github.com:scyptnex/computing.git
+git pages        git@github.com:scyptnex/scyptnex.github.io.git
 
 [uni]
 git cauliflower  git@bitbucket.org:scyptnex/cauliflower.git
