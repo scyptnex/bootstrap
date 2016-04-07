@@ -39,7 +39,7 @@ function clean(){
 
 CREATE=false
 TAG=unknown
-TAG_BASE=`readlink -f ~/project/computing/TagBase`
+TAG_BASE=`readlink -m ~/project/computing/TagBase`
 while getopts "chktw" opt; do
     case $opt in
         c)
