@@ -1,0 +1,57 @@
+#! /usr/bin/env python
+
+__doc__='''
++-----------------------------------------------------------------------+ 
+|                               prettybox                               |
+|                                                                       |
+| Author: Nic H.                                                        |
+| Date: 2016-Apr-07                                                     |
+|                                                                       |
+| Wraps the specified text in a pretty box-shape as specified by the    |
+| user. Works both for large boxes and small headers.                   |
++-----------------------------------------------------------------------+
+'''
+
+import sys
+import getopt
+from datetime import date
+
+def prettybox(cmd_args):
+    author=""
+    width=80
+    prefabs={}
+    prefabs["block"]= ["-", "+",    "|",    "+",    "-", "+",  "|",  "+"]
+    prefabs["inline"]=["-", "\\\\", "\\\\", "\\\\", "-", "//", "//", "//"]
+    prefabs["plain"]= ["",  "",     "",     "",     "",  "",   "",   ""]
+    directions=       ["N", "NE",   "E",    "SE",   "S", "SW", "W",  "NW"]
+    pieces={directions[i] : prefabs["block"][i] for i in xrange(0, len(directions))}
+    try:
+        opts, args = getopt.getopt(cmd_args, "h", [d + "=" for d in directions] + ["author=", "width=", "help"] + prefabs.keys())
+    except getopt.error, msg:
+        print msg
+        print "for help use --help"
+        sys.exit(2)
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            print __doc__
+            sys.exit(0)
+        elif o == "--author":
+            author = a
+        elif o == "--width":
+            width = int(a)
+        elif o[2:] in prefabs.keys():
+            pieces={directions[i] : prefabs[o[2:]][i] for i in xrange(0, len(directions))}
+        else:
+            pieces[o[2:]] = a # the cardinal directions
+
+    # Work out the message
+    title = " ".join(args)
+    if not message:
+        message = "STDIN"
+    print author
+    print date.today().strftime("Date: %Y-%b-%d")
+    print message
+    print repr(pieces)
+
+if __name__ == "__main__":
+    prettybox(sys.argv[1:])
