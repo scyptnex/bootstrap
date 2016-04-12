@@ -13,6 +13,7 @@
 # -a    Remvoe all files (not just those below my directory               #
 # -f    Do not ask for user permission                                    #
 # -h    Display this help message                                         #
+# -i    Also remove ignored files                                         #
 #-------------------------------------------------------------------------#
 
 set -e
@@ -25,7 +26,8 @@ function usage(){
 FAST=false
 HOME=`git rev-parse --show-toplevel`
 DIR="`pwd`"
-while getopts "afh" opt; do
+IGNO=""
+while getopts "afhi" opt; do
     case $opt in
         a)
             DIR="$HOME"
@@ -37,6 +39,9 @@ while getopts "afh" opt; do
             usage
             exit 0
             ;;
+        i)
+            IGNO="--ignored"
+            ;;
         \?)
             usage
             exit 1
@@ -44,7 +49,7 @@ while getopts "afh" opt; do
     esac
 done
 TMP=`mktemp`
-git status --porcelain | grep "^??" | cut -d " " -f 2 | awk -v home="$HOME/" '{print home $0}' | grep "^$DIR" | tee $TMP > /dev/null # hack to prevent -e from killing the script
+git status $IGNO --porcelain | grep -E "^(\?\?|\!\!)" | cut -d " " -f 2 | awk -v home="$HOME/" '{print home $0}' | grep "^$DIR" | tee $TMP > /dev/null # hack to prevent -e from killing the script
 
 if [ -s $TMP ]; then
     ANSWER=y
