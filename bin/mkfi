@@ -66,7 +66,7 @@ def writeFile(dirPath, fileName, message, author, extension):
     block["c"] = ("/* ", "", "", " * ", "", " */", "", "")
     block["h"] = block["c"]
     block["sh"] = ("#-", "-", "-#", "# ", " #", "#-", "-", "-#")
-    block["py"] = ("'''", "-", "-+ ", " | ", " | ", " +-", "-", "'''")
+    block["py"] = ("+-", "-", "-+", "| ", " |", "+-", "-", "-+")
     block["java"] = ("/**", "*", "** ", " * ", " * ", " **", "*", "**/")
     block["tex"] = ("%=", "=", "=%", "% ", " %", "%=", "=", "=%")
 
@@ -96,8 +96,10 @@ def writeFile(dirPath, fileName, message, author, extension):
     if(fType == "sh"):
         fp("#! /usr/bin/env bash\n", f)
     elif(fType == "py"):
-        fp("#! /usr/bin/env python\n", f)
+        fp("#! /usr/bin/env python\n\n'''", f)
     writeCommentBlock(fileName, author, message, block[fType], 75, f)
+    if(fType == "py"):
+        fp("'''", f)
     fp("", f)
     # Template
     if(fType == "h"):
@@ -146,8 +148,7 @@ def writeFile(dirPath, fileName, message, author, extension):
         fp("", f)
         fp("}", f)
     elif(fType == "py"):
-        fp("__doc__ = \"\"\"%s" % humanName, f)
-        fp("This is the Docstring\"\"\"", f)
+        fp("__doc__ = __doc__.strip()", f)
         fp("", f)
         fp("import sys", f)
         fp("import getopt", f)
@@ -203,7 +204,7 @@ def writeFile(dirPath, fileName, message, author, extension):
         fp("", f)
         fp("echo $@", f)
     f.close()
-    if(fType == "sh" or fileName.find(".") == -1):
+    if(fType == "sh" or fType == "py" or fileName.find(".") == -1):
         os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 def main():

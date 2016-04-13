@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__doc__='''
+'''
 +-----------------------------------------------------------------------+ 
 |                               prettybox                               |
 |                                                                       |
@@ -12,46 +12,87 @@ __doc__='''
 +-----------------------------------------------------------------------+
 '''
 
-import sys
+__doc__ = __doc__.strip()
+
+import datetime
 import getopt
-from datetime import date
+import getpass
+import sys
+import textwrap
+
+def toWidthString(stri, width, left, right, centered):
+    if not left:
+        stri = stri.lstrip()
+    spc=width-len(stri + left + right)
+    assert spc >= 0
+    ret = stri + " "*spc + right
+    if(centered):
+        ret = " "*(spc//2) + stri + " "*(spc - spc//2) + right
+    return left + ret.rstrip()
+
+def boxerize(p, m, w=-1, t="", a="", d=""):
+    if w==-1:
+        w = 2+len(p["W"] + m + p["E"])
+    if p["NW"]:
+        print p["NW"] + (w-len(p["NW"] + p["NE"]))*p["N"] + p["NE"]
+    if t:
+        print toWidthString(t, w, p["W"], p["E"], True)
+        print toWidthString("", w, p["W"], p["E"], False)
+    if a:
+        print toWidthString(" Author: " + a, w, p["W"], p["E"], False)
+    if d:
+        print toWidthString(" Date: " + d, w, p["W"], p["E"], False)
+    if a or d:
+        print toWidthString("", w, p["W"], p["E"], False)
+    wrapper = textwrap.TextWrapper()
+    wrapper.width = w - len(p["W"] + p["E"]) - 2
+    for line in wrapper.wrap(m):
+        print toWidthString(" " + line, w, p["W"], p["E"], False)
+    if p["SW"]:
+        print p["SW"] + (w-len(p["SW"] + p["SE"]))*p["S"] + p["SE"]
 
 def prettybox(cmd_args):
-    author=""
-    width=80
-    prefabs={}
-    prefabs["block"]= ["-", "+",    "|",    "+",    "-", "+",  "|",  "+"]
-    prefabs["inline"]=["-", "\\\\", "\\\\", "\\\\", "-", "//", "//", "//"]
-    prefabs["plain"]= ["",  "",     "",     "",     "",  "",   "",   ""]
-    directions=       ["N", "NE",   "E",    "SE",   "S", "SW", "W",  "NW"]
-    pieces={directions[i] : prefabs["block"][i] for i in xrange(0, len(directions))}
+    author = getpass.getuser()
+    big_box = False
+    title = ""
+    width = 78
+    prefabs = {}
+    prefabs["box"]=   ["-", "+",    "|",    "+",    "-", "+",   "|",  "+"]
+    prefabs["block"]= ["",  "",     "",     "",     "",  " */", " *", "/*"]
+    prefabs["doc"]=   ["*", "* ",   "* ",   "/",    "*", " *",  " *", "/*"]
+    prefabs["inline"]=["-", "\\\\", "\\\\", "\\\\", "-", "//",  "//", "//"]
+    prefabs["plain"]= ["",  "",     "",     "",     "",  "",    "",   ""]
+    prefabs["shell"]= ["=", "#",    "#",    "#",    "=", "#",   "#",  "#"]
+    prefabs["tex"]=   ["=", "%",    "%",    "%",    "=", "%",   "%",  "%"]
+    directions=       ["N", "NE",   "E",    "SE",   "S", "SW",  "W",  "NW"]
+    pieces={directions[i] : prefabs["box"][i] for i in xrange(0, len(directions))}
     try:
-        opts, args = getopt.getopt(cmd_args, "h", [d + "=" for d in directions] + ["author=", "width=", "help"] + prefabs.keys())
+        opts, args = getopt.getopt(cmd_args, "a:t:w:bhl", [d + "=" for d in directions] + ["help"] + prefabs.keys())
     except getopt.error, msg:
         print msg
         print "for help use --help"
         sys.exit(2)
     for o, a in opts:
-        if o in ("-h", "--help"):
+        if o == "-a":
+            author = a
+        elif o == "-b":
+            big_box = True
+        elif o in ("-h", "--help"):
             print __doc__
             sys.exit(0)
-        elif o == "--author":
-            author = a
-        elif o == "--width":
+        elif o == "-t":
+            title = a
+        elif o == "-w":
             width = int(a)
         elif o[2:] in prefabs.keys():
             pieces={directions[i] : prefabs[o[2:]][i] for i in xrange(0, len(directions))}
         else:
             pieces[o[2:]] = a # the cardinal directions
-
-    # Work out the message
-    title = " ".join(args)
-    if not message:
-        message = "STDIN"
-    print author
-    print date.today().strftime("Date: %Y-%b-%d")
-    print message
-    print repr(pieces)
+    message = " ".join(args)
+    if big_box or (title != ""):
+        boxerize(pieces, message, w=width, t=title, a=author, d=datetime.date.today().strftime("%Y-%b-%d"))
+    else:
+        boxerize(pieces, message)
 
 if __name__ == "__main__":
     prettybox(sys.argv[1:])
