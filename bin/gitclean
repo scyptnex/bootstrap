@@ -63,7 +63,7 @@ if [ -s $TMP ]; then
         cat $TMP
     fi
     if [ "$ANSWER" != "n" ]; then
-        cat $TMP | xargs rm
+        cat $TMP | xargs rm -r
     fi
 else
     echo "already clean"

@@ -9,6 +9,23 @@
 |                                                                       |
 | Wraps the specified text in a pretty box-shape as specified by the    |
 | user. Works both for large boxes and small headers.                   |
+|                                                                       |
+| Usage:                                                                |
+|     prettybox [OPTIONS] [--STYLE] [--PIECE=CHAR] {MESSAGE}            |
+|                                                                       |
+| OPTIONS:                                                              |
+|     -a NAME     Name of the author field                              |
+|     -b          Force big mode, useful for big boxes with no title    |
+|     -h          Print this help message                               |
+|     -t TITLE    Set the title of the box, forces big mode             |
+|     -w WIDTH    Set the width of the box                              |
+|                                                                       |
+| STYLE:                                                                |
+|     box, block, doc, inline, plain, shell, tex                        |
+|                                                                       |
+| PIECES:                                                               |
+|     N, NE, E, SE, S, SW, W, NW                                        |
+|     The compass directions are strings used to draw the box           |
 +-----------------------------------------------------------------------+
 '''
 
@@ -67,7 +84,7 @@ def prettybox(cmd_args):
     directions=       ["N", "NE",   "E",    "SE",   "S", "SW",  "W",  "NW"]
     pieces={directions[i] : prefabs["box"][i] for i in xrange(0, len(directions))}
     try:
-        opts, args = getopt.getopt(cmd_args, "a:t:w:bhl", [d + "=" for d in directions] + ["help"] + prefabs.keys())
+        opts, args = getopt.getopt(cmd_args, "a:t:w:bh", [d + "=" for d in directions] + ["help"] + prefabs.keys())
     except getopt.error, msg:
         print msg
         print "for help use --help"
