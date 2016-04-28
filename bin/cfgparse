@@ -78,7 +78,7 @@ PROJECTION=""
 for ARG in $@; do
     PROJECTION="$PROJECTION|($ARG)"
 done
-PROJECTION="^${PROJECTION#|} "
+PROJECTION="^${PROJECTION#|}:"
 if [ "$ALL" == "true" ]; then
     PROJECTION=""
 fi

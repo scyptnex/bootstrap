@@ -1,0 +1,8 @@
+[ui]
+username="Nic <foo@bar.baz>"
+merge=internal:merge
+
+[extensions]
+graphlog=
+color=
+rebase=
