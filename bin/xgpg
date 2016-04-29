@@ -1,0 +1,30 @@
+#! /usr/bin/env bash
+
+#-------------------------------------------------------------------------#
+#                                  xgpg                                   #
+#                                                                         #
+# Author: Nic H.                                                          #
+# Date: 2016-Apr-29                                                       #
+#                                                                         #
+# A GPG decryption layer.  converts all arguments which it recognises as  #
+# GPG files (extant files ending in .gpg and .asc) and temporarily        #
+# decrypts them.  It then executes all its arguments as a command, where  #
+# the GPG files are replaced with their decrypted versions                #
+#-------------------------------------------------------------------------#
+
+set -eu
+
+# boldly assumes that 8-or-more-character hex string preceeded by the text 'ID' is a recipient id
+function retrieve_recipients(){
+    gpg --batch --list-packets $1 2>&1 | grep -ioE "id.*[A-F0-9]{8}" | tr '[a-z]' '[A-Z]' | sed 's/^.*[^A-F0-9]\([A-F0-9]*\)$/\1/'
+}
+
+CMD=""
+for ARG in "$@"; do
+    echo $ARG
+    CMD="$CMD \"$ARG\""
+done
+echo -----------
+for ARG in $CMD; do
+    echo $ARG
+done
