@@ -27,21 +27,24 @@ fi
 # check that git and openssl exist
 which git >/dev/null 2>/dev/null || (echo "Install git" >&2 && exit 1)
 which openssl >/dev/null 2>/dev/null || (echo "Install openssl" >&2 && exit 1)
+which gpg >/dev/null 2>/dev/null || (echo "Install gpg" >&2 && exit 1)
+
+# check we arent overwriting an existing identity (i.e. prompt the user to save their current one)
+(gpg -k bootstrap >/dev/null 2>/dev/null || gpg -K bootstrap >/dev/null 2>/dev/null) && (echo "gpg key 'bootstrap' already exists" >&2 && exit 1)
+[ ! -f ~/.ssh/id_rsa ] || (echo "id_rsa exists" >&2 && exit 1)
+[ ! -f ~/.ssh/id_rsa.pub ] || (echo "id_rsa.pub exists" >&2 && exit 1)
 
 #important variables
 REPO_DIR="bootstrap"
 TMP_DIR=`mktemp -d`
-RSA_FILE="rsa_2048.aes-256-cbc.enc"
 
 # download the necessary parts
-githubget ssh "sshup.sh"
-githubget ssh "$RSA_FILE"
-githubget bin "crypt"
-chmod a+x "$TMP_DIR/sshup.sh"
-chmod a+x "$TMP_DIR/crypt"
+githubget identity "identity.asc"
+githubget identity "getidentity.sh"
+chmod a+x "$TMP_DIR/getidentity.sh"
 
-# set the ssh identity as my main user
-PATH="$TMP_DIR:$PATH" $TMP_DIR/sshup.sh "$TMP_DIR/$RSA_FILE"
+# set the ssh/gpg identity as my main user
+$TMP_DIR/getidentity.sh < "$TMP_DIR/identity.asc"
 
 # clean up
 rm -rf $TMP_DIR
