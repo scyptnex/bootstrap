@@ -74,6 +74,7 @@ def boxerize(p, m, w=-1, t="", a="", d=""):
 
 def prettybox(cmd_args):
     author = getpass.getuser()
+    date_arg = datetime.date.today().strftime("%Y-%b-%d")
     big_box = False
     title = ""
     width = 78
@@ -91,7 +92,7 @@ def prettybox(cmd_args):
     directions=        ["N",       "NE",      "E",       "SE",      "S",       "SW",      "W",       "NW"]
     pieces={directions[i] : prefabs["box"][i] for i in xrange(0, len(directions))}
     try:
-        opts, args = getopt.getopt(cmd_args, "a:t:w:bh", [d + "=" for d in directions] + ["help"] + prefabs.keys())
+        opts, args = getopt.getopt(cmd_args, "a:d:t:w:bh", [d + "=" for d in directions] + ["help"] + prefabs.keys())
     except getopt.error, msg:
         print msg
         print "for help use --help"
@@ -101,6 +102,8 @@ def prettybox(cmd_args):
             author = a
         elif o == "-b":
             big_box = True
+        elif o == "-d":
+            date_arg = a
         elif o in ("-h", "--help"):
             print __doc__
             sys.exit(0)
@@ -114,7 +117,7 @@ def prettybox(cmd_args):
             pieces[o[2:]] = a # the cardinal directions
     message = " ".join(args)
     if big_box or (title != ""):
-        boxerize(pieces, message, w=width, t=title, a=author, d=datetime.date.today().strftime("%Y-%b-%d"))
+        boxerize(pieces, message, w=width, t=title, a=author, d=date_arg)
     else:
         boxerize(pieces, message)
 
