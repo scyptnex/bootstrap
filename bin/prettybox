@@ -8,7 +8,9 @@
 | Date: 2016-Apr-07                                                     |
 |                                                                       |
 | Wraps the specified text in a pretty box-shape as specified by the    |
-| user. Works both for large boxes and small headers.                   |
+| user. Works both for large boxes and small headers. Users choose from |
+| a list of pre-fabricated styles, or design their own. Pre-fabricated  |
+| styles beginning with "u" indicate unicode.                           |
 |                                                                       |
 | Usage:                                                                |
 |     prettybox [OPTIONS] [--STYLE] [--PIECE=CHAR] {MESSAGE}            |
@@ -21,7 +23,8 @@
 |     -w WIDTH    Set the width of the box                              |
 |                                                                       |
 | STYLE:                                                                |
-|     box, block, doc, inline, plain, shell, tex                        |
+|     box, block, doc, inline, plain, shell, tex, ucurve, udouble,      |
+|     uthick                                                            |
 |                                                                       |
 | PIECES:                                                               |
 |     N, NE, E, SE, S, SW, W, NW                                        |
@@ -59,12 +62,13 @@ def boxerize(p, m, w=-1, t="", a="", d=""):
         print toWidthString(" Author: " + a, w, p["W"], p["E"], False)
     if d:
         print toWidthString(" Date: " + d, w, p["W"], p["E"], False)
-    if a or d:
-        print toWidthString("", w, p["W"], p["E"], False)
-    wrapper = textwrap.TextWrapper()
-    wrapper.width = w - len(p["W"] + p["E"]) - 2
-    for line in wrapper.wrap(m):
-        print toWidthString(" " + line, w, p["W"], p["E"], False)
+    if m:
+        if a or d:
+            print toWidthString("", w, p["W"], p["E"], False)
+        wrapper = textwrap.TextWrapper()
+        wrapper.width = w - len(p["W"] + p["E"]) - 2
+        for line in wrapper.wrap(m):
+            print toWidthString(" " + line, w, p["W"], p["E"], False)
     if p["SW"]:
         print p["SW"] + (w-len(p["SW"] + p["SE"]))*p["S"] + p["SE"]
 
