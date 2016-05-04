@@ -74,14 +74,17 @@ def prettybox(cmd_args):
     title = ""
     width = 78
     prefabs = {}
-    prefabs["box"]=   ["-", "+",    "|",    "+",    "-", "+",   "|",  "+"]
-    prefabs["block"]= ["",  "",     "",     "",     "",  " */", " *", "/*"]
-    prefabs["doc"]=   ["*", "* ",   "* ",   "/",    "*", " *",  " *", "/*"]
-    prefabs["inline"]=["-", "\\\\", "\\\\", "\\\\", "-", "//",  "//", "//"]
-    prefabs["plain"]= ["",  "",     "",     "",     "",  "",    "",   ""]
-    prefabs["shell"]= ["=", "#",    "#",    "#",    "=", "#",   "#",  "#"]
-    prefabs["tex"]=   ["=", "%",    "%",    "%",    "=", "%",   "%",  "%"]
-    directions=       ["N", "NE",   "E",    "SE",   "S", "SW",  "W",  "NW"]
+    prefabs["box"]=    [u"-",      u"+",      u"|",      u"+",      u"-",      u"+",      u"|",      u"+"]
+    prefabs["block"]=  [u"",       u"",       u"",       u"",       u"",       u" */",    u" *",     u"/*"]
+    prefabs["doc"]=    [u"*",      u"* ",     u"* ",     u"/",      u"*",      u" *",     u" *",     u"/*"]
+    prefabs["inline"]= [u"-",      u"\\\\",   u"\\\\",   u"\\\\",   u"-",      u"//",     u"//",     u"//"]
+    prefabs["plain"]=  [u"",       u"",       u"",       u"",       u"",       u"",       u"",       u""]
+    prefabs["shell"]=  [u"=",      u"#",      u"#",      u"#",      u"=",      u"#",      u"#",      u"#"]
+    prefabs["tex"]=    [u"=",      u"%",      u"%",      u"%",      u"=",      u"%",      u"%",      u"%"]
+    prefabs["ucurve"]= [u"\u2500", u"\u256E", u"\u2502", u"\u256F", u"\u2500", u"\u2570", u"\u2502", u"\u256D"]
+    prefabs["udouble"]=[u"\u2550", u"\u2557", u"\u2551", u"\u255D", u"\u2550", u"\u255A", u"\u2551", u"\u2554"]
+    prefabs["uthick"]= [u"\u2501", u"\u2513", u"\u2503", u"\u251B", u"\u2501", u"\u2517", u"\u2503", u"\u250F"]
+    directions=        ["N",       "NE",      "E",       "SE",      "S",       "SW",      "W",       "NW"]
     pieces={directions[i] : prefabs["box"][i] for i in xrange(0, len(directions))}
     try:
         opts, args = getopt.getopt(cmd_args, "a:t:w:bh", [d + "=" for d in directions] + ["help"] + prefabs.keys())
