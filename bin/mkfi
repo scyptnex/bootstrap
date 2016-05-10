@@ -1,40 +1,176 @@
 #! /usr/bin/env python
 
-"""mkfi - Making basic files for fun and profit!.
+"""
++----------------------------------------------------------------------------+
+|                                    mkfi                                    |
+|                                                                            |
+| Author: Nic H.                                                             |
+| Date: 2015-Jan-22                                                          |
+|                                                                            |
+| Creates a file, and intelligently adds initial comment block and           |
+| surrounding data depending on the file type. If the file does not have a   |
+| recognised extension, or no extension, the default is "sh".                |
+|                                                                            |
+| usage:                                                                     |
+|     mkfi [OPTIONS] <file>                                                  |
+|                                                                            |
+| Options:                                                                   |
+|     -a "author"      set the author of the file (Nic H.)                   |
+|     -h --help        Display this help message                             |
+|     -m "message"     Inset this message into the comment block ("")        |
+|     -x "extension"   Pretend this is the file's extension (sh)             |
++----------------------------------------------------------------------------+
+"""
 
-Creates a file, and intelligently adds initial comment block and 
-surrounding data depending on the file type.
-If the file does not have a recognised extension, or no extension,
-the default is "sh".
+__doc__ = __doc__.strip()
 
-usage:
-    mkfi [OPTIONS] <file>
-
-Options:
-    -a "author"      set the author of the file (Nic H.)
-    -h --help        Display this help message
-    -m "message"     Inset this message into the comment block ("")
-    -x "extension"   Pretend this is the file's extension (sh)"""
 import sys
 import getopt
 import os
 import stat
-import textwrap
 import subprocess
-from string import ascii_uppercase
-from datetime import date
+from string import Template
 
-def fp(printString, fil):
-    #print printString
-    fil.write(printString + "\n")
+__templates__={
 
-def writeCommentBlock(fileName, author, message, style, width, fil):
-    fp(subprocess.check_output(["prettybox"] + style + ["-t", fileName, "-a", author, "-w", str(width), message])[:-1], fil)
+# C/C++ Source Files
+"c":(["--doc"], r'''
+${BOX}
+
+#include "${HUMAN_NAME}.h"
+
+using namespace std;
+
+//Default Constructor
+${HUMAN_NAME}::${HUMAN_NAME}() {
+    //TODO implementation
+}
+
+//Default Destructor
+${HUMAN_NAME}::~${HUMAN_NAME}() {
+    //TODO implementation
+}
+
+//Stream output
+ostream& operator<<(ostream& os, const ${HUMAN_NAME}& obj) {
+    return os << "${HUMAN_NAME}@" << &obj;
+}
+'''),
+
+# C/C++ Header Files
+"h":(["--doc"], r'''
+${BOX}
+
+#ifndef __${HEADER_NAME}_H__
+#define __${HEADER_NAME}_H__
+
+#include <iostream>
+
+class ${HUMAN_NAME} {
+public:
+    ${HUMAN_NAME}();
+    virtual ~${HUMAN_NAME}();
+    void dump() const{std::cout << *this;}
+//friends
+    friend std::ostream& operator<<(std::ostream&, const ${HUMAN_NAME}&);
+};
+
+std::ostream& operator<<(std::ostream&, const ${HUMAN_NAME}&);
+
+#endif /* __${HEADER_NAME}_H__ */
+'''),
+
+# Java
+"java":(["--doc"], r'''
+${BOX}
+
+public class ${HUMAN_NAME} {
+
+    public static void main(String[] args){
+        System.out.println("Hello World!");
+    }
+
+}
+'''),
+
+# Python
+"py":(["--box"], r'''
+#! /usr/bin/env python
+
+"""
+${BOX}
+"""
+
+__doc__ = __doc__.strip()
+
+import sys
+import getopt
+
+def ${HUMAN_NAME}():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "h", ["help"])
+    except getopt.error, msg:
+        print msg
+        print "for help use --help"
+        sys.exit(2)
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            print __doc__
+            sys.exit(0)
+    print str(args)
+
+if __name__ == "__main__":
+    ${HUMAN_NAME}()
+'''),
+
+# Shell
+"sh":(["--shell"], r'''
+#! /usr/bin/env bash
+
+${BOX}
+
+function usage(){
+    grep "^#.*#$$" $$0
+}
+
+while getopts "h" opt; do
+    case $$opt in
+        h)
+            usage
+            exit 0
+            ;;
+        \?)
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $$(($$OPTIND -1))
+
+echo $$@
+'''),
+
+# Tex
+"tex":(["--tex"], r'''
+${BOX}
+
+\documentclass{article}
+
+\title{${TITLE_NAME}}
+\author{${AUTHOR}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+${MESSAGE}
+
+\end{document}
+''')
+}
 
 def writeFile(dirPath, fileName, message, author, extension):
-
-    # TODO more intelligent way of working this out
-    ext_style = ftmap={"c":["--doc"], "h":["--doc"], "sh":["--shell"], "py":["--box"], "java":["--doc"], "tex":["--tex"]}
 
     # Process filename for its extension/names
     dotIndex = fileName.rfind(".")
@@ -47,128 +183,26 @@ def writeFile(dirPath, fileName, message, author, extension):
         fType = "h"
     elif fType in ("cc", "cpp"):
         fType = "c"
-    if not ext_style.has_key(fType):
+    if not __templates__.has_key(fType):
         fType = "sh"
     if len(extension) != 0:
         fType = extension
-        if not ext_style.has_key(extension):
+        if not __templates__.has_key(extension):
             print "Unrecognised extension", extension
             sys.exit(1)
     names = ''.join([" %s" % x if x.isupper() else x for x in humanName.replace("-"," ").replace("_"," ")]).split()
 
+    (box_style, templ) = __templates__[fType]
     path = os.path.join(dirPath, fileName)
     f = open(path, "w")
-    # Header info and comment block
-    if(fType == "sh"):
-        fp("#! /usr/bin/env bash\n", f)
-    elif(fType == "py"):
-        fp("#! /usr/bin/env python\n\n'''", f)
-    writeCommentBlock(fileName, author, message, ext_style[fType], 75, f)
-    if(fType == "py"):
-        fp("'''", f)
-    fp("", f)
-    # Template
-    if(fType == "h"):
-        fp("#ifndef __%s_H__" % "_".join(names).upper(), f)
-        fp("#define __%s_H__" % "_".join(names).upper(), f)
-        fp("", f)
-        fp("#include <iostream>", f)
-        fp("", f)
-        fp("class %s {" % humanName, f)
-        fp("public:", f)
-        fp("    %s();" % humanName, f)
-        fp("    virtual ~%s();" % humanName, f)
-        fp("    void dump() const{std::cout << *this;}", f)
-        fp("//friends", f)
-        fp("    friend std::ostream& operator<<(std::ostream&, const %s&);" % humanName, f)
-        fp("};", f)
-        fp("", f)
-        fp("std::ostream& operator<<(std::ostream&, const %s&);" % humanName, f)
-        fp("", f)
-        fp("#endif /* __%s_H__ */" % "_".join(names).upper(), f)
-    elif(fType == "c"):
-        fp("#include \"%s.h\"" % humanName, f)
-        fp("", f)
-        fp("using namespace std;", f)
-        fp("", f)
-        fp("//Default Constructor", f)
-        fp("%s::%s() {" % (humanName, humanName), f)
-        fp("    //TODO implementation", f)
-        fp("}", f)
-        fp("", f)
-        fp("//Default Destructor", f)
-        fp("%s::~%s() {" % (humanName, humanName), f)
-        fp("    //TODO implementation", f)
-        fp("}", f)
-        fp("", f)
-        fp("//Stream output", f)
-        fp("ostream& operator<<(ostream& os, const %s& obj) {" % humanName, f)
-        fp("    return os << \"%s@\" << &obj;" % humanName, f)
-        fp("}", f)
-    elif(fType == "java"):
-        fp("public class %s {" % humanName, f)
-        fp("", f)
-        fp("    public static void main(String[] args){", f)
-        fp("        System.out.println(\"Hello World!\");", f)
-        fp("    }", f)
-        fp("", f)
-        fp("}", f)
-    elif(fType == "py"):
-        fp("__doc__ = __doc__.strip()", f)
-        fp("", f)
-        fp("import sys", f)
-        fp("import getopt", f)
-        fp("", f)
-        fp("def %s():" % humanName, f)
-        fp("    try:", f)
-        fp("        opts, args = getopt.getopt(sys.argv[1:], \"h\", [\"help\"])", f)
-        fp("    except getopt.error, msg:", f)
-        fp("        print msg", f)
-        fp("        print \"for help use --help\"", f)
-        fp("        sys.exit(2)", f)
-        fp("    for o, a in opts:", f)
-        fp("        if o in (\"-h\", \"--help\"):", f)
-        fp("            print __doc__", f)
-        fp("            sys.exit(0)", f)
-        fp("    print str(args)", f)
-        fp("", f)
-        fp("if __name__ == \"__main__\":", f)
-        fp("    %s()" % humanName, f)
-    elif(fType == "tex"):
-        fp("\\documentclass{article}", f)
-        fp("", f)
-        fp("\\title{%s}" % " ".join(names).title(), f)
-        fp("\\author{%s}" % author, f)
-        fp("\\date{\\today}", f)
-        fp("", f)
-        fp("\\begin{document}", f)
-        fp("", f)
-        fp("\\maketitle", f)
-        fp("", f)
-        if(len(message) != 0):
-            fp("%s" % message, f)
-            fp("", f)
-        fp("\\end{document}", f)
-    else:
-        fp("function usage(){", f)
-        fp("    grep \"^#.*#$\" $0", f)
-        fp("}", f)
-        fp("", f)
-        fp("while getopts \"h\" opt; do", f)
-        fp("    case $opt in", f)
-        fp("        h)", f)
-        fp("            usage", f)
-        fp("            exit 0", f)
-        fp("            ;;", f)
-        fp("        \?)", f)
-        fp("            usage", f)
-        fp("            exit 1", f)
-        fp("            ;;", f)
-        fp("    esac", f)
-        fp("done", f)
-        fp("shift $(($OPTIND -1))", f)
-        fp("", f)
-        fp("echo $@", f)
+    f.write(Template(templ.strip()).substitute(
+            HUMAN_NAME=humanName,
+            TITLE_NAME=" ".join(names).title(),
+            HEADER_NAME="_".join(names).upper(),
+            MESSAGE=message,
+            AUTHOR=author,
+            BOX=subprocess.check_output(["prettybox"] + box_style + ["-t", fileName, "-a", author, "-w", "75", message])[:-1]
+        ) + "\n")
     f.close()
     if(fType == "sh" or fType == "py" or fileName.find(".") == -1):
         os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
