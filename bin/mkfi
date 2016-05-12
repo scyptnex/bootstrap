@@ -1,25 +1,25 @@
 #! /usr/bin/env python
 
 """
-+----------------------------------------------------------------------------+
-|                                    mkfi                                    |
-|                                                                            |
-| Author: Nic H.                                                             |
-| Date: 2015-Jan-22                                                          |
-|                                                                            |
-| Creates a file, and intelligently adds initial comment block and           |
-| surrounding data depending on the file type. If the file does not have a   |
-| recognised extension, or no extension, the default is "sh".                |
-|                                                                            |
-| usage:                                                                     |
-|     mkfi [OPTIONS] <file>                                                  |
-|                                                                            |
-| Options:                                                                   |
-|     -a "author"      set the author of the file (Nic H.)                   |
-|     -h --help        Display this help message                             |
-|     -m "message"     Inset this message into the comment block ("")        |
-|     -x "extension"   Pretend this is the file's extension (sh)             |
-+----------------------------------------------------------------------------+
++------------------------------------------------------------------------+
+|                                    mkfi                                |
+|                                                                        |
+| Author: Nic H.                                                         |
+| Date: 2015-Jan-22                                                      |
+|                                                                        |
+| Creates a file, and intelligently adds initial comment block and       |
+| surrounding data depending on the file type. If the file does not have |
+| a recognised extension, or no extension, the default is "sh".          |
+|                                                                        |
+| usage:                                                                 |
+|     mkfi [OPTIONS] <file>                                              |
+|                                                                        |
+| Options:                                                               |
+|     -a "author"      set the author of the file (Nic H.)               |
+|     -h --help        Display this help message                         |
+|     -m "message"     Inset this message into the comment block ("")    |
+|     -x "extension"   Pretend this is the file's extension (sh)         |
++------------------------------------------------------------------------+
 """
 
 __doc__ = __doc__.strip()

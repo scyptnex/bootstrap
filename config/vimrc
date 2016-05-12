@@ -1,8 +1,6 @@
-" This is my vimrc
-
-"====================
-" FORMATTING
-"====================
+"============"
+" FORMATTING "
+"============"
 set smarttab
 set tabstop=4
 set shiftwidth=4
@@ -10,9 +8,9 @@ set expandtab
 set ai " Auto Indent
 set si " Smart Indent
 
-"====================
-" UI
-"====================
+"===="
+" UI "
+"===="
 
 "syntax highlighting
 syntax enable
@@ -44,9 +42,20 @@ else
     set wildignore+=.git\*,.hg\*,.svn\*
 endif
 
-"====================
-" VUNDLE
-"====================
+"=========="
+" COMMANDS "
+"=========="
+
+function s:PrettyBox(val)
+    let com_msg = system("prettybox --" . &filetype . " " . a:val . " 2>&1")
+    call append(line('.'), split(com_msg, '\v\n'))
+endfunction
+
+command! -n=? Comment :call s:PrettyBox('<args>')
+
+"========"
+" VUNDLE "
+"========"
 
 set nocompatible
 filetype off
@@ -65,16 +74,16 @@ let g:ycm_enable_diagnostic_signs = 0
 let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_extra_conf_globlist = ['./*','../*','../../*','!*']
 
-"====================
-" VTREEEXPLORER
-"====================
+"==============="
+" VTREEEXPLORER "
+"==============="
 
 let treeExplVertical=1
 let treeExplWinSize=40
 
-"====================
-" KEYMAPS
-"====================
+"========="
+" KEYMAPS "
+"========="
 
 let mapleader = ","
 nnoremap <leader>w :w!<cr>
