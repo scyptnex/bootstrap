@@ -14,6 +14,7 @@ trap "rm $ALL" EXIT
 
 gpg --no-use-agent > $ALL
 LN=`grep -na "^\-*END RSA PRIVATE KEY\-*$" $ALL | head -n 1 | cut -d ":" -f 1`
+[ -d ~/.ssh ] || mkdir ~/.ssh
 head -n 1 $ALL > ~/.ssh/id_rsa.pub
 head -n $LN $ALL | tail -n +2 > ~/.ssh/id_rsa
 tail -n +$((LN + 1)) $ALL | gpg --import
