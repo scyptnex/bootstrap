@@ -7,3 +7,12 @@ texlive-base
 
 [secure]
 ecryptfs
+gnupg
+
+[vim]
+vim
+build-essential
+cmake
+python3-dev
+python-dev
+
