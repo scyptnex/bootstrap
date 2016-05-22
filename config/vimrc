@@ -42,6 +42,12 @@ else
     set wildignore+=.git\*,.hg\*,.svn\*
 endif
 
+"============"
+" FILE TYPES "
+"============"
+au BufNewFile,BufRead *.groovy  setf groovy
+au BufNewFile,BufRead *.gradle  setf groovy
+
 "=========="
 " COMMANDS "
 "=========="

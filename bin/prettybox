@@ -91,7 +91,17 @@ def prettybox(cmd_args):
     prefabs["uthick"]= [u"\u2501", u"\u2513", u"\u2503", u"\u251B", u"\u2501", u"\u2517", u"\u2503", u"\u250F"]
     prefabs["vim"]=    [u"=",      u"\"",     u"\"",     u"\"",     u"=",      u"\"",     u"\"",     u"\""]
     directions=        ["N",       "NE",      "E",       "SE",      "S",       "SW",      "W",       "NW"]
-    aliases = {"sh":"shell", "python":"shell", "c":"doc", "cpp":"doc", "java":"doc", "h":"doc", "hpp":"doc"}
+    aliases = {
+            "c":"doc",
+            "cmake":"shell",
+            "cpp":"doc",
+            "groovy":"doc",
+            "h":"doc",
+            "hpp":"doc",
+            "java":"doc",
+            "python":"shell",
+            "sh":"shell",
+            }
     pieces={directions[i] : prefabs["box"][i] for i in xrange(0, len(directions))}
     try:
         opts, args = getopt.getopt(cmd_args, "a:d:t:w:bh", [d + "=" for d in directions] + ["help"] + prefabs.keys() + aliases.keys())
