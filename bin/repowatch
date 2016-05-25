@@ -10,15 +10,76 @@
 # where the user elects to track groups or individual repositories.       #
 #-------------------------------------------------------------------------#
 
+set -e
+set -u
+
 function usage(){
     grep "^#.*#$" $0
 }
 
-while getopts "h" opt; do
+function git_update(){
+    if [ "x`git status --porcelain | grep -v "^??"`" == "x" ]; then
+        if [ $UPDATING == true ]; then
+            git pull >>$LOGF 2>>$LOGF
+            echo "$(tput setaf 2)Updating:  $(tput sgr0) $(pwd)"
+        else
+            echo "$(tput setaf 4)Clean:     $(tput sgr0) $(pwd)"
+        fi
+    else
+        echo "$(tput setaf 1)Conflicts: $(tput sgr0) $(pwd)"
+    fi
+}
+
+function hg_update(){
+    if [ "x`hg status | grep -v "^?"`" == "x" ]; then
+        if [ $UPDATING == true ]; then
+            echo "$(tput setaf 2)Updating:  $(tput sgr0) $(pwd)"
+            hg pull >>$LOGF 2>>$LOGF
+            hg update >>$LOGF 2>>$LOGF
+        else
+            echo "$(tput setaf 4)Clean:     $(tput sgr0) $(pwd)"
+        fi
+    else
+        echo "$(tput setaf 1)Conflicts: $(tput sgr0) $(pwd)"
+    fi
+}
+
+function watch(){
+    if [[ -d "$1" ]]; then
+        pushd "$1" > /dev/null
+        if [[ $2 =~ .*hg@.* ]]; then
+            hg_update
+        else
+            git_update
+        fi
+        popd > /dev/null
+    elif [ $CLONING == true ]; then
+        echo "$(tput setaf 2)$(tput bold)Clone:     $(tput sgr0) $(readlink -f $1)"
+        mkdir -p $(dirname "$1")
+        if [[ $2 =~ .*hg@.* ]]; then
+            hg clone "$2" "$1" >>$LOGF 2>>$LOGF
+        else
+            git clone "$2" "$1" >>$LOGF 2>>$LOGF
+        fi
+    else
+        echo "$(tput setaf 3)$(tput bold)Absent:    $(tput sgr0) $(readlink -f $1)"
+    fi
+}
+
+UPDATING=false
+CLONING=false
+LOGF="$HOME/.repowlogs"
+while getopts "chu" opt; do
     case $opt in
+        c)
+            CLONING=true
+            ;;
         h)
             usage
             exit 0
+            ;;
+        u)
+            UPDATING=true
             ;;
         \?)
             usage
@@ -28,4 +89,21 @@ while getopts "h" opt; do
 done
 shift $(($OPTIND -1))
 
-echo $@
+if [ $UPDATING == false -a $CLONING == false ]; then
+    LOGF="/dev/null" # when no changes are possible, dont pollute the logs
+fi
+
+pushd ~ > /dev/null
+REPOFILE=".repowatch"
+
+touch "$LOGF"
+touch "$REPOFILE"
+prettybox "$(date) C=$CLONING U=$UPDATING" >> $LOGF
+
+sed -e 's/#.*$//' -e 's/[ \t]*$//' -e 's/^[ \t]*//' -e 's/[ \t][ \t]*/ /g' "$REPOFILE" | grep -v "^$" | while read LINE; do
+    LOC=${LINE% *}
+    REPO=${LINE##* }
+    echo "|- $LOC -|" >> $LOGF
+    watch "$LOC" "$REPO"
+done
+popd > /dev/null

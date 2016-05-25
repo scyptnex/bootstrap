@@ -1,20 +1,17 @@
-[~]
-git bootstrap    git@github.com:scyptnex/bootstrap.git
+# Main
+bootstrap git@github.com:scyptnex/bootstrap.git
+project/computing git@github.com:scyptnex/computing.git
+project/pages git@github.com:scyptnex/scyptnex.github.io.git
 
-[/dev/null]
-git   recipeweb  git@bitbucket.org:scyptnex/recipeweb.git
-hg    general    ssh://hg@bitbucket.org/scyptnex/general
-svn   uni        https://svn.it.usyd.edu.au/svn/nhol8058
+# Uni
+uni/cauliflower git@bitbucket.org:scyptnex/cauliflower.git
+uni/souffle https://github.com/souffle-lang/souffle
+uni/tex git@bitbucket.org:scyptnex/tex.git
+uni/jens-cfl ssh://hg@bitbucket.org/jensdietrich/cfl-reachability
 
-[project]
-git computing    git@github.com:scyptnex/computing.git
-git pages        git@github.com:scyptnex/scyptnex.github.io.git
+# Vim
+.vim/bundle/Vundle.vim git@github.com:VundleVim/Vundle.vim.git
 
-[uni]
-git cauliflower  git@bitbucket.org:scyptnex/cauliflower.git
-git souffle      https://github.com/souffle-lang/souffle
-git tex          git@bitbucket.org:scyptnex/tex.git
-hg  jens-cfl     ssh://hg@bitbucket.org/jensdietrich/cfl-reachability
-
-[.vim]
-git bundle       git@github.com:VundleVim/Vundle.vim.git
+# project/recipeweb  git@bitbucket.org:scyptnex/recipeweb.git
+# project/general    ssh://hg@bitbucket.org/scyptnex/general
+# uni/nhol8058        https://svn.it.usyd.edu.au/svn/nhol8058
