@@ -16,9 +16,13 @@ if [ "$PS1" ]; then
     PS1="\[\e]0;\u@\h\a\]$PS1"
 fi
 
+#=============#
+# Environment #
+#=============#
 if [ -d $HOME/bootstrap/bin ]; then
     PATH=$PATH:$HOME/bootstrap/bin
 fi
+export GRADLE_OPTS="-Dorg.gradle.daemon=true"
 
 #
 # Aliases
