@@ -59,6 +59,18 @@ def parse_cl(sys_argv):
 def gpg_recipients(filename):
     return map(lambda s : s.strip()[1:-1], subprocess.check_output(["gpg", "--list-only", "--no-default-keyring", "--secret-keyring", "/dev/null", filename], stderr=subprocess.STDOUT).strip().split("\n")[1::2])
 
+def gpg_decrypt(cipherfile, plainfile):
+    subprocess.check_call(["gpg", "-o", plainfile, cipherfile])
+
+def gpg_encrypt(plainfile, cipherfile, recipients, ascii_mode):
+    enc_call = ['gpg', '-e']
+    if ascii_mode:
+        enc_call += ['-a']
+    for r in recipients:
+        enc_call += ['-r', r]
+    enc_call += ['-o', cipherfile, plainfile]
+    subprocess.check_call(enc_call)
+
 def xgpg(force, keep, recipients, args):
     enc_dec = {}
     for i, a in enumerate(args):
@@ -75,18 +87,18 @@ def xgpg(force, keep, recipients, args):
     # Determine recipients and mod-times for the files
     enc_t = {}
     enc_r = {}
-    for enc in enc_dec.keys():
+    for enc, dec in enc_dec.items():
         recip = [r for r in recipients] # duplicate recipient list
         if os.path.exists(enc):
             # List the recipients of the current file and add them to the recip list
             recip = recip + gpg_recipients(enc)
             # Decrypt the current file
-            subprocess.check_call(["gpg", "-o", enc_dec[enc], enc])
+            gpg_decrypt(enc, dec)
         else:
             # Create a new file where needed
-            subprocess.check_call(["touch", enc_dec[enc]])
+            subprocess.check_call(["touch", dec])
         enc_r[enc] = recip
-        enc_t[enc] = os.path.getmtime(enc_dec[enc])
+        enc_t[enc] = os.path.getmtime(dec)
 
     # Call the user's command
     subprocess.call([enc_dec[a] if a in enc_dec.keys() else a for a in args])
@@ -97,16 +109,10 @@ def xgpg(force, keep, recipients, args):
             print dec, "captured by command"
             continue
         elif os.path.getmtime(dec) > enc_t[enc]:
+            print dec, "changed, re-encrypting for:", " ".join(enc_r[enc])
             if os.path.exists(enc):
                 os.remove(enc)
-            enc_call = ['gpg', '-e']
-            if enc.endswith("asc"):
-                enc_call += ['-a']
-            for r in enc_r[enc]:
-                enc_call += ['-r', r]
-            enc_call += [dec]
-            print dec, "changed, re-encrypting:", " ".join(enc_call)
-            subprocess.check_call(enc_call)
+            gpg_encrypt(dec, enc, enc_r[enc], enc.endswith("asc"))
         else:
             print dec, "unchanged, skipping re-encryption"
         if not keep:
