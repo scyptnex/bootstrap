@@ -1,2 +1,2 @@
 #! /usr/bin/env sh
-exec python xgpg.py "$@"
+exec python $(dirname `readlink -f $0`)/xgpg.py "$@"

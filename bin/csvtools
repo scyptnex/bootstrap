@@ -1,2 +1,2 @@
 #! /usr/bin/env sh
-exec python csvtools.py "$@"
+exec python $(dirname `readlink -f $0`)/csvtools.py "$@"

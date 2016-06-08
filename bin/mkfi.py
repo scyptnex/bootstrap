@@ -93,8 +93,6 @@ public class ${HUMAN_NAME} {
 
 # Python
 "py":(["--box"], r'''
-#! /usr/bin/env python
-
 """
 ${BOX}
 """
@@ -119,6 +117,12 @@ def ${HUMAN_NAME}():
 
 if __name__ == "__main__":
     ${HUMAN_NAME}()
+'''),
+
+# Python pseudo
+"py_pseudo":([], r'''
+#! /usr/bin/env sh
+exec python $$(dirname `readlink -f $$0`)/${HUMAN_NAME}.py "$$@"
 '''),
 
 # Shell
@@ -168,15 +172,27 @@ ${MESSAGE}
 ''')
 }
 
-def writeFile(dirPath, fileName, message, author, extension):
+def errxit(msg, code):
+    print msg
+    sys.exit(code)
 
+def writeFile(dirPath, fileName, message, author, extension):
     # Process filename for its extension/names
     dotIndex = fileName.rfind(".")
     fType = "sh"
     humanName = fileName
+    path = os.path.join(dirPath, fileName)
+    if (os.path.exists(path)):
+        errxit("%s already exists" % path, 1)
     if dotIndex != -1:
         fType = fileName[dotIndex+1:]
         humanName = fileName[:dotIndex]
+    elif __templates__.has_key(extension + "_pseudo"):
+        # catch pseudo executables early, and make their execution template
+        # in this case a known file type was given that did not have an extension
+        writeFile(dirPath, fileName + "." + extension, message, author, "") # write the real mkfi
+        extension = extension + "_pseudo"
+
     if fType in ("hh", "hpp"):
         fType = "h"
     elif fType in ("cc", "cpp"):
@@ -191,7 +207,6 @@ def writeFile(dirPath, fileName, message, author, extension):
     names = ''.join([" %s" % x if x.isupper() else x for x in humanName.replace("-"," ").replace("_"," ")]).split()
 
     (box_style, templ) = __templates__[fType]
-    path = os.path.join(dirPath, fileName)
     f = open(path, "w")
     f.write(Template(templ.strip()).substitute(
             HUMAN_NAME=humanName,
@@ -202,24 +217,21 @@ def writeFile(dirPath, fileName, message, author, extension):
             BOX=subprocess.check_output(["prettybox"] + box_style + ["-t", fileName, "-a", author, "-w", "75", message])[:-1]
         ) + "\n")
     f.close()
-    if(fType == "sh" or fType == "py" or fileName.find(".") == -1):
+    if(fType == "sh" or fType.endswith("_pseudo")):
         os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hm:a:x:", ["help"])
     except getopt.error, msg:
-        print msg
-        print "for help use --help"
-        sys.exit(2)
+        errxit(msg + "\nfor help use --help", 2)
 
     optMessage = ""
     optAuthor = "Nic H."
     optExtension = ""
     for o, a in opts:
         if o in ("-h", "--help"):
-            print __doc__
-            sys.exit(0)
+            errxit(__doc__, 0)
         elif o in ("-m"):
             optMessage = a
         elif o in ("-a"):
@@ -228,13 +240,8 @@ def main():
             optExtension = a
 
     if(len(args) != 1):
-        print "Please provide a filename"
-        print __doc__
-        sys.exit(1)
+        errxit("Please provide a filename\n" + doc, 1)
 
-    if(os.path.exists(args[0])):
-        print "%s already exists" % (args[0])
-        sys.exit(1)
     else:
         dirPath=os.path.dirname(args[0])
         if(not dirPath):
@@ -242,8 +249,7 @@ def main():
         if(os.path.isdir(dirPath)):
             writeFile(dirPath, os.path.basename(args[0]), optMessage, optAuthor, optExtension)
         else:
-            print "Non-existant directory %s" % dirPath
-            sys.exit(1)
+            errxit("Non-existant directory %s" % dirPath, 1)
 
 if __name__ == "__main__":
     main()
