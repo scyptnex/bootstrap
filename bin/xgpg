@@ -58,6 +58,9 @@ def parse_cl(sys_argv):
             recipients.append(a)
     return force, keep, recipients, args
 
+def gpg_recipients(filename):
+    return map(lambda s : s.strip()[1:-1], subprocess.check_output(["gpg", "--list-only", "--no-default-keyring", "--secret-keyring", "/dev/null", filename], stderr=subprocess.STDOUT).strip().split("\n")[1::2])
+
 def xgpg(force, keep, recipients, args):
     enc_dec = {}
     for i, a in enumerate(args):
@@ -78,7 +81,7 @@ def xgpg(force, keep, recipients, args):
         recip = [r for r in recipients] # duplicate recipient list
         if os.path.exists(enc):
             # List the recipients of the current file and add them to the recip list
-            recip = recip + subprocess.check_output("gpg --batch --list-packets %s 2>&1 | grep -ioE 'id.*[A-F0-9]{8}' | tr '[a-z]' '[A-Z]' | sed 's/^.*[^A-F0-9]\([A-F0-9]*\)$/\\1/'" % pipes.quote(enc), shell=True).strip().split("\n")
+            recip = recip + gpg_recipients(enc)
             # Decrypt the current file
             subprocess.check_call(["gpg", "-o", enc_dec[enc], enc])
         else:
