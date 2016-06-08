@@ -49,26 +49,28 @@ def toWidthString(stri, width, left, right, centered):
     return left + ret.rstrip()
 
 def boxerize(p, m, w=-1, t="", a="", d=""):
+    ret = []
     if w==-1:
         w = 2+len(p["W"] + m + p["E"])
     if p["NW"]:
-        print p["NW"] + (w-len(p["NW"] + p["NE"]))*p["N"] + p["NE"]
+        ret.append(p["NW"] + (w-len(p["NW"] + p["NE"]))*p["N"] + p["NE"])
     if t:
-        print toWidthString(t, w, p["W"], p["E"], True)
-        print toWidthString("", w, p["W"], p["E"], False)
+        ret.append(toWidthString(t, w, p["W"], p["E"], True))
+        ret.append(toWidthString("", w, p["W"], p["E"], False))
     if a:
-        print toWidthString(" Author: " + a, w, p["W"], p["E"], False)
+        ret.append(toWidthString(" Author: " + a, w, p["W"], p["E"], False))
     if d:
-        print toWidthString(" Date: " + d, w, p["W"], p["E"], False)
+        ret.append(toWidthString(" Date: " + d, w, p["W"], p["E"], False))
     if m:
         if a or d:
-            print toWidthString("", w, p["W"], p["E"], False)
+            ret.append(toWidthString("", w, p["W"], p["E"], False))
         wrapper = textwrap.TextWrapper()
         wrapper.width = w - len(p["W"] + p["E"]) - 2
         for line in wrapper.wrap(m):
-            print toWidthString(" " + line, w, p["W"], p["E"], False)
+            ret.append(toWidthString(" " + line, w, p["W"], p["E"], False))
     if p["SW"]:
-        print p["SW"] + (w-len(p["SW"] + p["SE"]))*p["S"] + p["SE"]
+        ret.append(p["SW"] + (w-len(p["SW"] + p["SE"]))*p["S"] + p["SE"])
+    return "\n".join(ret)
 
 def prettybox(cmd_args):
     author = getpass.getuser()
@@ -129,9 +131,9 @@ def prettybox(cmd_args):
             pieces[o[2:]] = a # the cardinal directions
     message = " ".join(args)
     if big_box or (title != ""):
-        boxerize(pieces, message, w=width, t=title, a=author, d=date_arg)
+        return boxerize(pieces, message, w=width, t=title, a=author, d=date_arg)
     else:
-        boxerize(pieces, message)
+        return boxerize(pieces, message)
 
 if __name__ == "__main__":
-    prettybox(sys.argv[1:])
+    print prettybox(sys.argv[1:])

@@ -26,7 +26,7 @@ import sys
 import getopt
 import os
 import stat
-import subprocess
+import prettybox 
 from string import Template
 
 __templates__={
@@ -214,7 +214,7 @@ def writeFile(dirPath, fileName, message, author, extension):
             HEADER_NAME="_".join(names).upper(),
             MESSAGE=message,
             AUTHOR=author,
-            BOX=subprocess.check_output(["prettybox"] + box_style + ["-t", fileName, "-a", author, "-w", "75", message])[:-1]
+            BOX=prettybox.prettybox(box_style + ["-t", fileName, "-a", author, "-w", "75", message])
         ) + "\n")
     f.close()
     if(fType == "sh" or fType.endswith("_pseudo")):
