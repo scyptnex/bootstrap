@@ -19,4 +19,4 @@ This repository initialises itself.
 Obviously, dont do this if you think I'll gain control of your system.
 Run the command:
 
-    wget -q -O - https://github.com/scyptnex/bootstrap/raw/master/init.sh | bash
+    git clone https://github.com/scyptnex/bootstrap.git bootstrap && bootstrap/init/init.sh
