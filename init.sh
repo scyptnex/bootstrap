@@ -56,16 +56,5 @@ else
     git clone git@github.com:scyptnex/bootstrap.git $REPO_DIR
 fi
 
-# linking configurations
-for CFG in $REPO_DIR/config/*; do
-    if [[ $CFG =~ .*bashrc$ ]] && [ -f $HOME/.bashrc ]; then
-        # put the config's bashrc in the current bashrc if it exists and is a file
-        sed -i -e '/^\..*bashrc$/d' $HOME/.bashrc
-        echo ". `readlink -f $CFG`" >> $HOME/.bashrc
-    else
-        # remove anythink that is not the proper config and link the config
-        rm -f ~/.${CFG#$REPO_DIR/config/}
-        ln -s $(readlink -f "$CFG") ~/.${CFG#$REPO_DIR/config/}
-    fi
-done
+$REPO_DIR/init/configure.sh
 
