@@ -131,6 +131,9 @@ exec python $$(dirname `readlink -f $$0`)/${HUMAN_NAME}.py "$$@"
 
 ${BOX}
 
+set -e
+set -u
+
 function usage(){
     grep "^#.*#$$" $$0
 }
