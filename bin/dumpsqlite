@@ -1,0 +1,68 @@
+#! /usr/bin/env bash
+
+#=========================================================================#
+#                               dumpsqlite                                #
+#                                                                         #
+# Author: Nic H.                                                          #
+# Date: 2016-Jun-24                                                       #
+#                                                                         #
+# write an SQLite database into a csv separated file                      #
+#     -s <sep>    use <sep> as separator                                  #
+#     -x <ext>    use <ext> for output file extensions                    #
+#=========================================================================#
+
+set -e
+set -u
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+quotefix() {
+    python -c '
+import sys
+ln=""
+within = False
+for line in sys.stdin.readlines():
+    for c in line[:-1]:
+        if c == "\"":
+            within = not within
+        ln = ln + c
+    if within:
+        ln = ln + "\\n"
+    else:
+        print ln
+        ln = ""
+'
+}
+
+SEP=","
+EXT="csv"
+
+while getopts "hs:x:" opt; do
+    case $opt in
+        h)
+            usage
+            exit 0
+            ;;
+        s)
+            SEP="$OPTARG"
+            ;;
+        x)
+            EXT="$OPTARG"
+            ;;
+        \?)
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $(($OPTIND -1))
+
+DB="$1"
+
+for TABLE in `sqlite3 $DB ".tables"`; do
+    OUT="$(dirname $DB)/${TABLE}.$EXT"
+    echo $TABLE " -> " $OUT
+    sqlite3 $DB ".mode csv" ".separator $SEP" ".headers off" "select rowid,* from $TABLE;" | quotefix | sed 's/""\(..\)/\\"\1/g' > $OUT
+done
