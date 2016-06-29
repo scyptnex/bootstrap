@@ -243,7 +243,7 @@ def main():
             optExtension = a
 
     if(len(args) != 1):
-        errxit("Please provide a filename\n" + doc, 1)
+        errxit("Please provide a filename\n" + __doc__, 1)
 
     else:
         dirPath=os.path.dirname(args[0])
