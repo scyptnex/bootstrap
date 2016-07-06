@@ -1,8 +1,62 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
-if [ "x$1" == "x" ]; then
-    echo "Please input a profilable program"
-    exit 1
-fi
+#=========================================================================#
+#                               profileroid                               #
+#                                                                         #
+# Author: Nic H.                                                          #
+# Date: 2016-Jul-06                                                       #
+#                                                                         #
+# profiles the execution of a program.  Make sure to compile the program  #
+# with the "-pg -g" flags to enable progiling and human-readable method   #
+# names.                                                                  #
+#                                                                         #
+# Options:                                                                #
+#   -c <f>    Override the location of "gprof2dot.py" with <f>            #
+#   -f <a>    Set the flags for the gprof2dot.py script to be <a>         #
+#   -h        Display this help message                                   #
+#=========================================================================#
 
-gprof $1 | python $HOME/computing/python/gprof2dot.py | dot -Tpdf > $1.pdf
+set -e
+set -u
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+GP2D=""
+[ -d "$HOME/project/computing" ] && GP2D="$HOME/project/computing/python/gprof2dot.py"
+COPTS=""
+
+while getopts "c:f:h" opt; do
+    case $opt in
+        c)
+            GP2D="$OPTARG"
+            ;;
+        f)
+            COPTS="$OPTARG"
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        \?)
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $(($OPTIND -1))
+
+[ -f "$GP2D" ] || (echo "failed to find \"gprof2dot.py\" file" >&2 && exit 1)
+
+OUT_D=`echo profile "$@" $(date --rfc-3339=seconds) | sed 's/[ \t][ \t]*/ /g' | tr ' ' '_' | tr -cd '[:alnum:]_-'`
+
+"$@"
+[ -f gmon.out ] || (echo "failed to find \"gmon.out\" profile file" >&2 && exit 1)
+mkdir -p $OUT_D
+mv gmon.out $OUT_D
+echo "$@" > $OUT_D/execution.cmd
+gprof $1 $OUT_D/gmon.out > $OUT_D/profile.out
+python "$GP2D" $COPTS < $OUT_D/profile.out > $OUT_D/graph.dot
+dot -Tpdf < $OUT_D/graph.dot > $OUT_D/out.pdf
+
