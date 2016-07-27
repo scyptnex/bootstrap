@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Email
+Exec=sh -c "xdg-open http://mail.google.com && xdg-open http://outlook.office365.com && thunderbird"
+Terminal=false
+Icon=gmail
+Type=Application
+Categories=Network;WebBrowser;
+
