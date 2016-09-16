@@ -36,6 +36,7 @@ alias egrep='egrep --color=auto'
 #other
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 alias cman="man -P \"col -x -b\""
+alias dat="date +%F-%H:%M"
 alias gpgrecipients="gpg --list-only --no-default-keyring --secret-keyring /dev/null"
 alias opn="xdg-open"
 alias panda="pandoc -f markdown -o PANDA.pdf"
