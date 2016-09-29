@@ -46,7 +46,12 @@ alias panda="pandoc -f markdown -o PANDA.pdf"
 #=======================#
 
 if [ -d $HOME/bootstrap/bin ]; then
-    PATH=$PATH:$HOME/bootstrap/bin
+    export PATH="$PATH:$HOME/bootstrap/bin"
+fi
+if [ -d $HOME/soft/go ]; then
+    export GOROOT="$HOME/soft/go"
+    export PATH="$PATH:$GOROOT/bin"
+    export GOPATH="$HOME/project/go"
 fi
 export GRADLE_OPTS="-Dorg.gradle.daemon=true"
 
