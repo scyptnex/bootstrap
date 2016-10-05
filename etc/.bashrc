@@ -54,9 +54,6 @@ if [ -d $HOME/soft/go ]; then
     export GOPATH="$HOME/project/go"
 fi
 export GRADLE_OPTS="-Dorg.gradle.daemon=true"
-if [ "$TERM" == "xterm" ]; then
-    export TERM="xterm-256color" # this is supposedly the bad way to do this
-fi
 
 #=========#
 # History #

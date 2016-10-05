@@ -20,7 +20,7 @@ set hlsearch
 set incsearch
 
 "colour scheme
-colorscheme desert
+colorscheme industry
 set background=dark
 
 "command area
