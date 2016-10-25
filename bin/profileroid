@@ -10,6 +10,10 @@
 # with the "-pg -g" flags to enable progiling and human-readable method   #
 # names.                                                                  #
 #                                                                         #
+# Usage:                                                                  #
+#   profileroid [OPTIONS] <executable> <arguments>                        #
+#   Run <executable> with <arguments> and the profile it                  #
+#                                                                         #
 # Options:                                                                #
 #   -c <f>    Override the location of "gprof2dot.py" with <f>            #
 #   -f <a>    Set the flags for the gprof2dot.py script to be <a>         #

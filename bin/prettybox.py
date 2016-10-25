@@ -95,6 +95,7 @@ def prettybox(cmd_args):
             "c":"doc",
             "cmake":"shell",
             "cpp":"doc",
+            "dl":"inline", # souffle datalog files use C++ comments
             "groovy":"doc",
             "h":"doc",
             "hpp":"doc",
