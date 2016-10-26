@@ -6,26 +6,34 @@
 # Author: Nic H.                                                          #
 # Date: 2016-Mar-10                                                       #
 #                                                                         #
-# Computes a sha256 checksum of all the files in the current directory    #
-# (except .check.*.sum)                                                   #
+# DEPRECIATED                                                             #
+#                                                                         #
+# Create a checksum file with:                                            #
+#     sha256sum ./* > [FILE]                                              #
+#                                                                         #
+# Confirm chechsums with:                                                 #
+#     sha256sum -c [FILE]                                                 #
 #-------------------------------------------------------------------------#
 
 set -e
 set -u
 
-function checks(){
-	find ./* | sort | sed -e 's/^/"/' -e 's/$/"/' | xargs sha256sum 2>&1
-}
+grep "^#.*#$" $0
 
-if [ $# == 1 ] && [ $1 == "-c" ]; then
-	rm -f .check*.sum
-	checks | tee ".check.`date +%F`.sum"
-    exit 0
-fi
-CHK=`find . -name ".check.*.sum"`
-[ -f "$CHK" ] || (echo "no checksum file, create one with -c" >&2 && exit 1)
-echo "checking against $CHK"
-checks | diff - $CHK
-[ $? == 0 ] && (echo "passed" && exit 0)
-exit 1
+# function checks(){
+# 	find ./* | sort | sed -e 's/^/"/' -e 's/$/"/' | xargs sha256sum 2>&1
+# }
+# 
+# if [ $# == 1 ] && [ $1 == "-c" ]; then
+# 	rm -f .check*.sum
+# 	checks | tee ".check.`date +%F`.sum"
+#     exit 0
+# fi
+# CHK=`find . -name ".check.*.sum"`
+# [ -f "$CHK" ] || (echo "no checksum file, create one with -c" >&2 && exit 1)
+# echo "checking against $CHK"
+# checks | diff - $CHK
+# [ $? == 0 ] && (echo "passed" && exit 0)
+# exit 1
+
 
