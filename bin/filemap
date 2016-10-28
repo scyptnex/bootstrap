@@ -1,0 +1,2 @@
+#! /usr/bin/env sh
+exec python $(dirname `readlink -f $0`)/filemap.py "$@"
