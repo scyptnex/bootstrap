@@ -9,18 +9,32 @@
 | produced by filemap).                                                   |
 |                                                                         |
 | Usage:                                                                  |
+|                                                                         |
 |   > filereduce {--<command> <arg>}                                      |
 |   execute, in order, each of the <Command>s, with the argument <args>.  |
 |                                                                         |
 | Commands:                                                               |
+|                                                                         |
 |   --collect <f>:<op>                                                    |
 |     where records are equal for all fields except <f> reduce multiple   |
 |     records by applying <op> to the entries of <f>, valid <op>s are:    |
 |     avg,sum,max,min,cat                                                 |
+|                                                                         |
+|   --default <f>:<v>                                                     |
+|     if a record has no field named <f>, give it one with value <v>      |
+|                                                                         |
 |   --remove <f>                                                          |
 |     remove the field <f> from all records                               |
+|                                                                         |
 |   --rename <old>:<new>                                                  |
 |     change the name of the <old> field to <new>                         |
+|                                                                         |
+|   --table <x>:<y>:<val>:<name>:<delim>:<default>                        |
+|     construct a table from the records, coord (<x>,<y>) has value <val> |
+|     and the table itself is named <name> (i.e. that is the value at the |
+|     (0,0) position). The table will have <delim> as delimiter, and if   |
+|     there is no value for a coordinate, <default> is used. Both <delim> |
+|     and <default> can be blank                                          |
 +-------------------------------------------------------------------------+
 """
 
@@ -94,6 +108,16 @@ class Collect(Command):
                 out=""
             yield (k + "\t" + out).strip()
 
+class Default(Command):
+    def __init__(self):
+        Command.__init__(self, "default", 2)
+    def execute_sub(self, pipe, args):
+        for ln in pipe:
+            if args[0] + "=" in ln:
+                yield ln
+            else:
+                yield ln + "\t" + args[0] + "=" + args[1]
+
 class Remove(Command):
     def __init__(self):
         Command.__init__(self, "remove", 1)
@@ -111,11 +135,38 @@ class Rename(Command):
         for ln in pipe:
             yield "\t".join([c.replace(col_from,col_to,1) if c.startswith(col_from + "=") else c for c in ln.split("\t")])
 
+class Table(Command):
+    def __init__(self):
+        Command.__init__(self, "table", 6)
+    def execute_sub(self, pipe, args):
+        if not args[4]:
+            args[4] = "\t"
+        xs = set()
+        ys = set()
+        ptns = [re.compile(".*" + p + "=([^\t]*)") for p in args[:3]]
+        d={}
+        for ln in pipe:
+            mtch = [m.group(1) if m else "" for m in [p.match(ln) for p in ptns]]
+            if not mtch[0] or not mtch[1]:
+                raise Exception("trying to create a table with incomplete x and y columns")
+            xs.add(mtch[0])
+            ys.add(mtch[1])
+            d[(mtch[0], mtch[1])] = mtch[2]
+        ys = [y for y in ys]
+        ys.sort()
+        xs = [x for x in xs]
+        xs.sort()
+        yield args[4].join([args[3]] + xs)
+        for y in ys:
+            yield args[4].join([y] + [ s if s else args[5] for s in[d[(x,y)] if (x,y) in d.keys() else None for x in xs]])
+
 def filereduce():
     # register the commands
     Collect()
+    Default()
     Remove()
     Rename()
+    Table()
     # run the pipeline
     pipeline=inputer(sys.stdin)
     try:
