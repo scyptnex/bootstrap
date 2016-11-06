@@ -79,17 +79,20 @@ class Command:
 def numbr(v):
     return [float(val) for val in v]
 
+def mstr(f):
+    return "%f" % f
+
 class Collect(Command):
     def __init__(self):
         Command.__init__(self, "collect", 2)
     def execute_sub(self, pipe, args):
         ptn=re.compile("(.*)" + args[0] + "=([^\t]*)(.*)")
         op = {
-                "avg":lambda c,v : c + "=" + str(sum(numbr(v))/len(v)),
-                "max":lambda c,v : c + "=" + str(max(numbr(v))),
-                "min":lambda c,v : c + "=" + str(min(numbr(v))),
+                "avg":lambda c,v : c + "=" + mstr(sum(numbr(v))/len(v)),
+                "max":lambda c,v : c + "=" + mstr(max(numbr(v))),
+                "min":lambda c,v : c + "=" + mstr(min(numbr(v))),
                 "ord":lambda c,v : "\t".join([c + str(i) + "=" + x for (i,x) in enumerate(v)]),
-                "sum":lambda c,v : c + "=" + str(sum(numbr(v)))
+                "sum":lambda c,v : c + "=" + mstr(sum(numbr(v)))
             }[args[1]]
         d={}
         for ln in pipe:
@@ -135,6 +138,15 @@ class Rename(Command):
         for ln in pipe:
             yield "\t".join([c.replace(col_from,col_to,1) if c.startswith(col_from + "=") else c for c in ln.split("\t")])
 
+class Scale(Command):
+    def __init__(self):
+        Command.__init__(self, "scale", 2)
+    def execute_sub(self, pipe, args):
+        col_name = args[0]
+        factor   = float(args[1])
+        for ln in pipe:
+            yield "\t".join([col_name + "=" + str(float(c[c.index("=")+1:])*factor) if c.startswith(col_name + "=") else c for c in ln.split("\t")])
+
 class Table(Command):
     def __init__(self):
         Command.__init__(self, "table", 6)
@@ -166,6 +178,7 @@ def filereduce():
     Default()
     Remove()
     Rename()
+    Scale()
     Table()
     # run the pipeline
     pipeline=inputer(sys.stdin)
