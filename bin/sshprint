@@ -9,6 +9,7 @@
 # Prints the file remotely on the specified printer.                      #
 #                                                                         #
 # Options:                                                                #
+#     -c  choose page ranges: 1-5, 9-end start-2                          #
 #     -d  use default configuration (level 4W printer at USYD)            #
 #     -h  print this help message                                         #
 #     -p  specify the printer                                             #
@@ -24,9 +25,17 @@ set -e
 
 SERVER=""
 PRINTER=""
+RANGE=""
+COPIES="1"
 
-while getopts "dhp:s:" opt; do
+while getopts "c:dhp:r:s:" opt; do
     case $opt in
+        c)
+            COPIES="$OPTARG"
+            ;;
+        r)
+            RANGE="$RANGE $OPTARG"
+            ;;
         d)
             PRINTER="pr1-419"
             SERVER="$SSH_C1"
@@ -52,15 +61,25 @@ shift $(($OPTIND -1))
 [ -n "$SERVER" ] || (echo "Server not specified, use -s" >&2; exit 1)
 [ -n "$PRINTER" ] || (echo "Printer not specified, use -p" >&2; exit 1)
 
+[ "$COPIES" == 1 ] || (echo "Multiple copies not implemented yet" >&2; exit 1) # TODO
+
 if [ $# == 1 ]; then
-    echo "   File: $1"
+    FILE="$1"
+    echo "   File: $FILE"
+    if [ -n "$RANGE" ] || [ "$COPIES" != "1" ] ; then
+        echo "         $RANGE x $COPIES"
+        FTMP=`mktemp --tmpdir XXXXXX.pdf`
+        trap "rm $FTMP" EXIT
+        pdftk $FILE cat $RANGE output $FTMP
+        FILE=$FTMP
+    fi
     echo " Server: $SERVER"
     echo "Printer: $PRINTER"
 
-    FNAME=`basename $1`
+    FNAME=`basename $1` # use $1 here so we get the right name even with a temp
     TMP=`ssh $SERVER mktemp --tmpdir ${FNAME%.pdf}.XXX.pdf`
     echo " Remote: $TMP"
-    scp "$1" $SERVER:$TMP
+    scp "$FILE" $SERVER:$TMP
     ssh $SERVER "lpr -V -P $PRINTER $TMP"
     ssh $SERVER "rm $TMP"
 else
