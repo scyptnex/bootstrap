@@ -19,9 +19,9 @@
 |     xgpg [OPTIONS] <COMMAND> [ARGS]                                     |
 |                                                                         |
 | Options:                                                                |
-|   -f         Force decryption, even when the decrypted filename exists  |
 |   -h         Print this help message                                    |
 |   -k         Keep decrypted versions (normally they are deleted)        |
+|   -l         Decrypt files into the same directory (i.e. not /tmp/xgpg) |
 |   -r <user>  Set the recipient for decrypted files (multiple uses)      |
 +-------------------------------------------------------------------------+
 '''
@@ -32,29 +32,8 @@ import getopt
 import pipes
 import subprocess
 import sys
+import tempfile
 import os
-
-def parse_cl(sys_argv):
-    force = False
-    keep = False
-    recipients = []
-    try:
-        opts, args = getopt.getopt(sys_argv[1:], "r:fhk", ["help"])
-    except getopt.error, msg:
-        print msg
-        print "for help use --help"
-        sys.exit(2)
-    for o, a in opts:
-        if o == "-f":
-            force = True
-        elif o in ("-h", "--help"):
-            print __doc__
-            sys.exit(0)
-        elif o == "-k":
-            keep = True
-        elif o == "-r":
-            recipients.append(a)
-    return force, keep, recipients, args
 
 def gpg_recipients(filename):
     return map(lambda s : s.strip()[1:-1], subprocess.check_output(["gpg", "--list-only", "--no-default-keyring", "--secret-keyring", "/dev/null", filename], stderr=subprocess.STDOUT).strip().split("\n")[1::2])
@@ -71,53 +50,101 @@ def gpg_encrypt(plainfile, cipherfile, recipients, ascii_mode):
     enc_call += ['-o', cipherfile, plainfile]
     subprocess.check_call(enc_call)
 
-def xgpg(force, keep, recipients, args):
-    enc_dec = {}
-    for i, a in enumerate(args):
-        if ( a.endswith(".gpg") or a.endswith(".asc") ) and not os.path.isdir(a):
-            enc_dec[a] = a[:-4]
-            if os.path.exists(enc_dec[a]):
-                if not force:
-                    print "Aborting: cannot decrypt %s since %s already exists.  Use -f to force." % (a, enc_dec[a])
+class xgpg:
+    def __init__(self):
+        self.keep = False
+        self.working_dir = os.path.join(tempfile.gettempdir(), "xgpg")
+        self.recipients = []
+        self.command = []
+
+    def parse_cl(self, sys_args):
+        self.keep = False
+        self.recipients = []
+        try:
+            opts, args = getopt.getopt(sys_args[1:], "r:hkl", ["help"])
+        except getopt.error, msg:
+            print msg
+            print "for help use --help"
+            sys.exit(2)
+        for o, a in opts:
+            if o in ("-h", "--help"):
+                print __doc__
+                sys.exit(0)
+            elif o == "-k":
+                self.keep = True
+            elif o == "-l":
+                self.working_dir = None
+            elif o == "-r":
+                self.recipients.append(a)
+        self.command = args
+
+    def get_decrypted_mirror(self, fi):
+        if self.working_dir:
+            prefix = os.path.basename(fi)[:-4];
+            suffix = ""
+            if "." in prefix:
+                suffix = prefix[prefix.rfind("."):]
+                prefix = prefix[0:prefix.rfind(".")]
+            if not os.path.exists(self.working_dir):
+                os.makedirs(self.working_dir)
+            (handle, path) = tempfile.mkstemp(suffix, prefix, self.working_dir)
+            os.remove(path) # not sure how to do this elegantly...
+            return path
+        else:
+            return fi[:-4]
+
+    def clean_temp(self):
+        try:
+            os.rmdir(self.working_dir)
+        except OSError as ex:
+            pass
+
+    def execute_command(self):
+        enc_dec = {}
+        for i, a in enumerate(self.command):
+            if ( a.endswith(".gpg") or a.endswith(".asc") ) and not os.path.isdir(a):
+                enc_dec[a] = self.get_decrypted_mirror(a)
+                if len(self.recipients) == 0 and not os.path.exists(a):
+                    print "Aborting: New file \"%s\" must have at least one recipient" % a
                     return
-            if len(recipients) == 0 and not os.path.exists(a):
-                print "Aborting: New file \"%s\" must have at least one recipient" % a
-                return
 
-    # Determine recipients and mod-times for the files
-    enc_t = {}
-    enc_r = {}
-    for enc, dec in enc_dec.items():
-        recip = [r for r in recipients] # duplicate recipient list
-        if os.path.exists(enc):
-            # List the recipients of the current file and add them to the recip list
-            recip = recip + gpg_recipients(enc)
-            # Decrypt the current file
-            gpg_decrypt(enc, dec)
-        else:
-            # Create a new file where needed
-            subprocess.check_call(["touch", dec])
-        enc_r[enc] = recip
-        enc_t[enc] = os.path.getmtime(dec)
-
-    # Call the user's command
-    subprocess.call([enc_dec[a] if a in enc_dec.keys() else a for a in args])
-
-    # re-encrypt the files
-    for enc, dec in enc_dec.items():
-        if not os.path.exists(dec):
-            print dec, "captured by command"
-            continue
-        elif os.path.getmtime(dec) > enc_t[enc]:
-            print dec, "changed, re-encrypting for:", " ".join(enc_r[enc])
+        # Determine recipients and mod-times for the files
+        enc_t = {}
+        enc_r = {}
+        for enc, dec in enc_dec.items():
+            recip = [r for r in self.recipients] # duplicate recipient list
             if os.path.exists(enc):
-                os.remove(enc)
-            gpg_encrypt(dec, enc, enc_r[enc], enc.endswith("asc"))
-        else:
-            print dec, "unchanged, skipping re-encryption"
-        if not keep:
-            os.remove(dec)
+                # List the recipients of the current file and add them to the recip list
+                recip = recip + gpg_recipients(enc)
+                # Decrypt the current file
+                gpg_decrypt(enc, dec)
+            else:
+                # Create a new file where needed
+                subprocess.check_call(["touch", dec])
+            enc_r[enc] = recip
+            enc_t[enc] = os.path.getmtime(dec)
+
+        # Call the user's command
+        subprocess.call([enc_dec[a] if a in enc_dec.keys() else a for a in self.command])
+
+        # re-encrypt the files
+        for enc, dec in enc_dec.items():
+            if not os.path.exists(dec):
+                print dec, "captured by command"
+                continue
+            elif os.path.getmtime(dec) > enc_t[enc]:
+                print dec, "changed, re-encrypting for:", " ".join(enc_r[enc])
+                if os.path.exists(enc):
+                    os.remove(enc)
+                gpg_encrypt(dec, enc, enc_r[enc], enc.endswith("asc"))
+            else:
+                print dec, "unchanged, skipping re-encryption"
+            if not self.keep:
+                os.remove(dec)
+        self.clean_temp()
 
 if __name__ == "__main__":
-    f, k, r, a = parse_cl(sys.argv)
-    xgpg(f, k, r, a)
+    x = xgpg()
+    x.parse_cl(sys.argv)
+    x.execute_command()
+

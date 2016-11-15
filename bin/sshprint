@@ -61,28 +61,26 @@ shift $(($OPTIND -1))
 
 [ -n "$SERVER" ] || (echo "Server not specified, use -s" >&2; exit 1)
 [ -n "$PRINTER" ] || (echo "Printer not specified, use -p" >&2; exit 1)
+[ $# == 1 ] || (echo "File not specified" >&2; exit 1)
 
-if [ $# == 1 ]; then
-    FILE="$1"
-    echo "   File: $FILE"
-    if [ -n "$RANGE" ] ; then
-        FTMP=`mktemp --tmpdir XXXXXX.pdf`
-        trap "rm $FTMP" EXIT
-        pdftk $FILE cat $RANGE output $FTMP
-        FILE=$FTMP
-    fi
-    [ -n "$RANGE" ] || RANGE="all"
-    echo "  Pages: $RANGE"
-    echo " Copies: $COPIES"
-    echo " Server: $SERVER"
-    echo "Printer: $PRINTER"
-
-    FNAME=`basename $1` # use $1 here so we get the right name even with a temp
-    TMP=`ssh $SERVER mktemp --tmpdir ${FNAME%.pdf}.XXX.pdf`
-    echo " Remote: $TMP"
-    scp "$FILE" $SERVER:$TMP
-    ssh $SERVER "lpr -V -P $PRINTER -# $COPIES $TMP"
-    ssh $SERVER "rm $TMP"
-else
-    ssh $SERVER "lpq -V -P $PRINTER"
+FILE="$1"
+echo "   File: $FILE"
+if [ -n "$RANGE" ] ; then
+    FTMP=`mktemp --tmpdir XXXXXX.pdf`
+    trap "rm $FTMP" EXIT
+    pdftk $FILE cat $RANGE output $FTMP
+    FILE=$FTMP
 fi
+[ -n "$RANGE" ] || RANGE="all"
+echo "  Pages: $RANGE"
+echo " Copies: $COPIES"
+echo " Server: $SERVER"
+echo "Printer: $PRINTER"
+
+FNAME=`basename $1` # use $1 here so we get the right name even with a temp
+TMP=`ssh $SERVER mktemp --tmpdir ${FNAME%.pdf}.XXX.pdf`
+echo " Remote: $TMP"
+scp "$FILE" $SERVER:$TMP
+ssh $SERVER "lpr -V -P $PRINTER -# $COPIES $TMP"
+ssh $SERVER "rm $TMP"
+ssh $SERVER "lpq -V -P $PRINTER"
