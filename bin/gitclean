@@ -6,6 +6,16 @@
 # Author: Nic H.                                                          #
 # Date: 2016-Mar-18                                                       #
 #                                                                         #
+# DEPRECIATED                                                             #
+#                                                                         #
+# show which files to remove                                              #
+# > git clean -n                                                          #
+#                                                                         #
+# remove ignored files                                                    #
+# > git clean -x                                                          #
+#                                                                         #
+#-------------------------------------------------------------------------#
+#                                                                         #
 # Removes untracked files below the current directory (with user          #
 # confirmation                                                            #
 #                                                                         #
@@ -22,6 +32,9 @@ set -u
 function usage(){
     grep "^#.*#$" $0
 }
+
+usage
+exit 1
 
 FAST=false
 HOME=`git rev-parse --show-toplevel`
