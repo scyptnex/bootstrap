@@ -10,12 +10,13 @@
 | a recognised extension, or no extension, the default is "sh".          |
 |                                                                        |
 | usage:                                                                 |
-|     mkfi [OPTIONS] <file>                                              |
+|     mkfi [OPTIONS] <file> [-- {header-args}]                           |
+|     Create <file> with its options, and a header created from the      |
+|     argumens [header-args] passed to prettybox                         |
 |                                                                        |
 | Options:                                                               |
 |     -a "author"      set the author of the file (Nic H.)               |
 |     -h --help        Display this help message                         |
-|     -m "message"     Inset this message into the comment block ("")    |
 |     -x "extension"   Pretend this is the file's extension (sh)         |
 +------------------------------------------------------------------------+
 """
@@ -24,6 +25,7 @@ __doc__ = __doc__.strip()
 
 import sys
 import getopt
+import getpass
 import os
 import stat
 import prettybox 
@@ -102,21 +104,23 @@ __doc__ = __doc__.strip()
 import sys
 import getopt
 
-def ${HUMAN_NAME}():
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "h", ["help"])
-    except getopt.error, msg:
-        print msg
-        print "for help use --help"
-        sys.exit(2)
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            print __doc__
-            sys.exit(0)
-    print str(args)
+class ${HUMAN_NAME}:
+    
+    def __init__(self, sys_args):
+        try:
+            opts, args = getopt.getopt(sys_args[1:], "h", ["help"])
+        except getopt.error, msg:
+            print msg
+            print "for help use --help"
+            sys.exit(2)
+        for o, a in opts:
+            if o in ("-h", "--help"):
+                print __doc__
+                sys.exit(0)
+        print str(args)
 
 if __name__ == "__main__":
-    ${HUMAN_NAME}()
+    ${HUMAN_NAME}(sys.argv)
 '''),
 
 # Python pseudo
@@ -169,7 +173,7 @@ ${BOX}
 
 \maketitle
 
-${MESSAGE}
+Lorem ipsum dolor set amet.
 
 \end{document}
 ''')
@@ -179,7 +183,7 @@ def errxit(msg, code):
     print msg
     sys.exit(code)
 
-def writeFile(dirPath, fileName, message, author, extension):
+def writeFile(dirPath, fileName, pretty_args, author, extension):
     # Process filename for its extension/names
     dotIndex = fileName.rfind(".")
     fType = "sh"
@@ -193,7 +197,7 @@ def writeFile(dirPath, fileName, message, author, extension):
     elif __templates__.has_key(extension + "_pseudo"):
         # catch pseudo executables early, and make their execution template
         # in this case a known file type was given that did not have an extension
-        writeFile(dirPath, fileName + "." + extension, message, author, "") # write the real mkfi
+        writeFile(dirPath, fileName + "." + extension, pretty_args, author, "") # write the real mkfi
         extension = extension + "_pseudo"
 
     if fType in ("hh", "hpp"):
@@ -215,34 +219,36 @@ def writeFile(dirPath, fileName, message, author, extension):
             HUMAN_NAME=humanName,
             TITLE_NAME=" ".join(names).title(),
             HEADER_NAME="_".join(names).upper(),
-            MESSAGE=message,
             AUTHOR=author,
-            BOX=prettybox.prettybox(box_style + ["-t", fileName, "-a", author, "-w", "75", message])
+            BOX=prettybox.prettybox(box_style + ["-w", "75", "-t", fileName, "-a", author] + pretty_args)
         ) + "\n")
     f.close()
     if(fType == "sh" or fType.endswith("_pseudo")):
         os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 def main():
+    sys_args = sys.argv[1:]
+    pretty_args=[]
+    if "--" in sys_args:
+        idx = sys_args.index("--")
+        pretty_args = sys_args[idx+1:]
+        sys_args = sys_args[:idx]
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hm:a:x:", ["help"])
+        opts, args = getopt.getopt(sys_args, "a:hx:", ["help"])
     except getopt.error, msg:
         errxit(msg + "\nfor help use --help", 2)
 
-    optMessage = ""
-    optAuthor = "Nic H."
+    optAuthor = getpass.getuser()
     optExtension = ""
     for o, a in opts:
         if o in ("-h", "--help"):
             errxit(__doc__, 0)
-        elif o in ("-m"):
-            optMessage = a
         elif o in ("-a"):
             optAuthor = a
         elif o in ("-x"):
             optExtension = a
 
-    if(len(args) != 1):
+    if(len(args) < 1):
         errxit("Please provide a filename\n" + __doc__, 1)
 
     else:
@@ -250,7 +256,7 @@ def main():
         if(not dirPath):
             dirPath="."
         if(os.path.isdir(dirPath)):
-            writeFile(dirPath, os.path.basename(args[0]), optMessage, optAuthor, optExtension)
+            writeFile(dirPath, os.path.basename(args[0]), pretty_args, optAuthor, optExtension)
         else:
             errxit("Non-existant directory %s" % dirPath, 1)
 
