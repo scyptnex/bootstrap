@@ -16,6 +16,7 @@
 |   -a <rx>    filter artists with the regular expression <rx>            |
 |   -g <rx>    filter the file-path with regular expression <rx>          |
 |   -h         display this help message                                  |
+|   -l         list the available albums                                  |
 |   -m <rx>    filter albums with the regular expression <rx>             |
 |   -r <num>   choose <num> tracks to play at random(ish)                 |
 |   -s         shuffle the songs, playing them out-of-order               |
@@ -114,7 +115,7 @@ def display_confirm(instance):
 def amuse():
     instance = Amused()
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "a:g:m:hr:st:", ["help"])
+        opts, args = getopt.getopt(sys.argv[1:], "a:g:m:hlr:st:", ["help"])
     except getopt.error as err:
         print(err.msg)
         print("for help use --help")
@@ -123,6 +124,9 @@ def amuse():
         # flags
         if o in ("-h", "--help"):
             print(__doc__)
+            sys.exit(0)
+        elif o == "-l":
+            subprocess.check_call(["beet", "ls", "-a"])
             sys.exit(0)
         elif o == "-s":
             instance.shuffle = True
