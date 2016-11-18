@@ -69,7 +69,22 @@ HISTFILESIZE=2000
 # Prompt #
 #========#
 
-PS1="\n\[$(tput bold)$(tput setaf 2)\]\u@\h: \[$(tput setaf 4)\]\w\[$(tput sgr0)\] \$ "
+PCOL=0
+case "$(hostname)" in
+    cpu*)
+        PCOL=5
+        ;;
+    plang*)
+        PCOL=6
+        ;;
+    ghesseran|makraan)
+        PCOL=2
+        ;;
+    *)
+        PCOL=0
+        ;;
+esac
+PS1="\n\[$(tput bold)$(tput setaf $PCOL)\]\u@\h: \[$(tput setaf 4)\]\w\[$(tput sgr0)\] \$ "
 case "$TERM" in
     # for xterm and alike, set the name of the window
     xterm*|rxvt*)
