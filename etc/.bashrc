@@ -77,7 +77,7 @@ case "$(hostname)" in
     plang*)
         PCOL=6
         ;;
-    ghesseran|makraan)
+    ghesseran|Makraan)
         PCOL=2
         ;;
     *)

@@ -71,6 +71,7 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'vtreeexplorer'
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'rust-lang/rust.vim'
+Plugin 'scyptnex/souffle.vim'
 call vundle#end() " All of your Plugins must be added before this line
 filetype plugin indent on
 "filetype plugin on
