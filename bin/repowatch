@@ -8,6 +8,11 @@
 #                                                                         #
 # Keep track of multiple repositories, based on a subscription model,     #
 # where the user elects to track groups or individual repositories.       #
+#                                                                         #
+# Options                                                                 #
+#   -c    Clone directories if they dont exist                            #
+#   -h    Display this help message                                       #
+#   -u    Update directories that are not in conflict                     #
 #-------------------------------------------------------------------------#
 
 set -e
