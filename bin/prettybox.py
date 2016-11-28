@@ -14,11 +14,14 @@
 |     prettybox [OPTIONS] [--STYLE] [--PIECE=CHAR] {MESSAGE}            |
 |                                                                       |
 | OPTIONS:                                                              |
-|     -a NAME     Name of the author field                              |
-|     -b          Force big mode, useful for big boxes with no title    |
-|     -h          Print this help message                               |
-|     -t TITLE    Set the title of the box, forces big mode             |
-|     -w WIDTH    Set the width of the box                              |
+|   -a NAME     Name of the author field                                |
+|   -b          Force big mode, i.e. draw a big box with no title       |
+|   -h          print this help message                                 |
+|   -o O_A_MSG  Append a big box.s message with an option-style line of |
+|               the form .-O A MSG.                                     |
+|   -t TITLE    Set the title of the box, it will be centered and big-  |
+|               mode will be enabled                                    |
+|   -w WIDTH    Set the width of the box                                |
 |                                                                       |
 | STYLE:                                                                |
 |     box, block, doc, inline, plain, shell, tex, ucurve, udouble,      |
@@ -42,13 +45,14 @@ def toWidthString(stri, width, left, right, centered):
     if not left:
         stri = stri.lstrip()
     spc=width-len(stri + left + right)
-    assert spc >= 0
+    if(spc < 0):
+        raise Exception("Not enough space for line \"%s\" %d" % (stri, spc))
     ret = stri + " "*spc + right
     if(centered):
         ret = " "*(spc//2) + stri + " "*(spc - spc//2) + right
     return left + ret.rstrip()
 
-def boxerize(p, m, w=-1, t="", a="", d=""):
+def boxerize(p, m, w=-1, t="", a="", d="", o=[]):
     ret = []
     if w==-1:
         w = 2+len(p["W"] + m + p["E"])
@@ -68,6 +72,39 @@ def boxerize(p, m, w=-1, t="", a="", d=""):
         wrapper.width = w - len(p["W"] + p["E"]) - 2
         for line in wrapper.wrap(m):
             ret.append(toWidthString(" " + line, w, p["W"], p["E"], False))
+    if o:
+        if a or d or m:
+            ret.append(toWidthString("", w, p["W"], p["E"], False))
+        wrapper = textwrap.TextWrapper()
+        ret.append(toWidthString(" Options:", w, p["W"], p["E"], False))
+        # determine the alignment
+        maxOpt = 0
+        for i in xrange(0, len(o)):
+            if len(o[i]) == 2:
+                o[i] = [o[i][0], "", o[i][1]]
+            elif len(o[i]) == 1:
+                o[i] = [o[i][0], "", ""]
+            if len(o[i]) != 3:
+                raise Exception("Invalid option-string length: " + len(o[i]))
+            if o[i][0][0] != "-":
+                o[i][0] = "-" + o[i][0]
+            if o[i][1] != "":
+                o[i][1] = " " + o[i][1]
+            maxOpt = max(maxOpt, len(o[i][0]) + len(o[i][1]))
+        maxOpt = max(maxOpt, w//5 - len(p["W"] + p["E"]) - 2)
+        # print tha ligned options
+        wrapper = textwrap.TextWrapper()
+        wrapper.width = w - len(p["W"] + p["E"]) - 6 - maxOpt
+        for opt in o:
+            printed = False
+            for line in wrapper.wrap(opt[2]):
+                ostr = opt[0] + opt[1]
+                ostr = "   " + ostr + " "*(maxOpt - len(ostr)) + "  "
+                if printed:
+                    ostr = " "*len(ostr)
+                ret.append(toWidthString(ostr + line, w, p["W"], p["E"], False))
+                printed = True
+
     if p["SW"]:
         ret.append(p["SW"] + (w-len(p["SW"] + p["SE"]))*p["S"] + p["SE"])
     return "\n".join(ret)
@@ -75,6 +112,7 @@ def boxerize(p, m, w=-1, t="", a="", d=""):
 def prettybox(cmd_args):
     author = getpass.getuser()
     date_arg = datetime.date.today().strftime("%Y-%b-%d")
+    box_options = []
     big_box = False
     title = ""
     width = 78
@@ -105,7 +143,7 @@ def prettybox(cmd_args):
             }
     pieces={directions[i] : prefabs["box"][i] for i in xrange(0, len(directions))}
     try:
-        opts, args = getopt.getopt(cmd_args, "a:d:t:w:bh", [d + "=" for d in directions] + ["help"] + prefabs.keys() + aliases.keys())
+        opts, args = getopt.getopt(cmd_args, "a:d:o:t:w:bh", [d + "=" for d in directions] + ["help"] + prefabs.keys() + aliases.keys())
     except getopt.error, msg:
         print msg
         print "for help use --help"
@@ -120,6 +158,8 @@ def prettybox(cmd_args):
         elif o in ("-h", "--help"):
             print __doc__
             sys.exit(0)
+        elif o == "-o":
+            box_options += [a.split(":")]
         elif o == "-t":
             title = a
         elif o == "-w":
@@ -132,7 +172,7 @@ def prettybox(cmd_args):
             pieces[o[2:]] = a # the cardinal directions
     message = " ".join(args)
     if big_box or (title != ""):
-        return boxerize(pieces, message, w=width, t=title, a=author, d=date_arg)
+        return boxerize(pieces, message, w=width, t=title, a=author, d=date_arg, o=box_options)
     else:
         return boxerize(pieces, message)
 
