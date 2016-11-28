@@ -53,7 +53,12 @@ au BufNewFile,BufRead *.gradle  setf groovy
 "=========="
 
 function s:PrettyBox(val)
-    let com_msg = system("prettybox --" . &filetype . " " . a:val . " 2>&1")
+    if &filetype == ""
+        let com_ft = ""
+    else
+        let com_ft = "--" . &filetype . " "
+    endif
+    let com_msg = system("prettybox " . com_ft . a:val . " 2>&1")
     call append(line('.'), split(com_msg, '\v\n'))
 endfunction
 
