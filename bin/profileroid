@@ -7,7 +7,7 @@
 # Date: 2016-Jul-06                                                       #
 #                                                                         #
 # profiles the execution of a program.  Make sure to compile the program  #
-# with the "-pg -g" flags to enable progiling and human-readable method   #
+# with the "-pg -g" flags to enable profiling and human-readable method   #
 # names.                                                                  #
 #                                                                         #
 # Usage:                                                                  #
@@ -18,6 +18,7 @@
 #   -c <f>    Override the location of "gprof2dot.py" with <f>            #
 #   -f <a>    Set the flags for the gprof2dot.py script to be <a>         #
 #   -h        Display this help message                                   #
+#   -H        Display "gprof2dot.py"'s help info                          #
 #=========================================================================#
 
 set -e
@@ -31,7 +32,7 @@ GP2D=""
 [ -d "$HOME/project/computing" ] && GP2D="$HOME/project/computing/python/gprof2dot.py"
 COPTS=""
 
-while getopts "c:f:h" opt; do
+while getopts "c:f:hH" opt; do
     case $opt in
         c)
             GP2D="$OPTARG"
@@ -41,6 +42,10 @@ while getopts "c:f:h" opt; do
             ;;
         h)
             usage
+            exit 0
+            ;;
+        H)
+            python "$GP2D" -h
             exit 0
             ;;
         \?)
