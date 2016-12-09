@@ -1,0 +1,62 @@
+#! /usr/bin/env bash
+
+#=========================================================================#
+#                                 usbject                                 #
+#                                                                         #
+# Author: nic                                                             #
+# Date: 2016-Dec-09                                                       #
+#                                                                         #
+# Safely ejects a USB drive (or any drive for that matter) from the       #
+# system.                                                                 #
+#                                                                         #
+# Usage:                                                                  #
+#   usbject                                                               #
+#     - List the mounted block devices                                    #
+#   usbject <DEV>                                                         #
+#     - Safely eject the device most closely matching <DEV>               #
+#                                                                         #
+# Options:                                                                #
+#   -h           Display this help message                                #
+#=========================================================================#
+
+set -e
+set -u
+
+function select_devs(){
+    grep "^/dev/sd" /proc/mounts | grep "$1" | cut -d " " -f 1,2
+}
+
+function show_devs(){
+    cat <(echo "device path") <(echo "------ ----") <(select_devs "$1") | column -t
+}
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+while getopts "h" opt; do
+    case $opt in
+        h)
+            usage
+            exit 0
+            ;;
+        \?)
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+if [ $# != 1 ]; then
+    show_devs ""
+    exit 0
+fi
+
+if [ `select_devs "$1" | wc -l` == 1 ]; then
+    BLOCK=`select_devs "$1" | cut -d " " -f 1`
+    udisksctl unmount -b "$BLOCK"
+    udisksctl power-off -b "$BLOCK"
+else
+    echo "\"$1\" does not uniquely identify a mounted drive"
+fi
+
