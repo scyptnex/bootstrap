@@ -1,0 +1,60 @@
+#! /usr/bin/env bash
+
+#=========================================================================#
+#                             checksummarize                              #
+#                                                                         #
+# Author: nic                                                             #
+# Date: 2017-Feb-16                                                       #
+#                                                                         #
+# Generate a script that will perform checksums for the files recursively #
+# below this directory.                                                   #
+#                                                                         #
+# Usage                                                                   #
+#     checksummarize [path]                                               #
+#=========================================================================#
+
+set -e
+set -u
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+function errxit(){
+    [ $# -gt 0 ] && echo "Error: $1"
+    echo "Re-run with -h for help" >&2
+    exit 1
+}
+
+while getopts "h" opt; do
+    case $opt in
+        h)
+            usage
+            exit 0
+            ;;
+        \?)
+            errxit
+            ;;
+    esac
+done
+shift $(($OPTIND -1))
+
+DIR="."
+[ $# -gt 0 ] && DIR="$1"
+
+[ -d "$DIR" ] || errxit "Cannot create checksums for a non-directory \"$DIR\""
+[ -f "$DIR/CHECKSUM" ] && errxit "A checksum file already exists at \"$DIR/CHECKSUM\""
+
+trap "popd > /dev/null" EXIT
+pushd "$DIR" > /dev/null
+
+FILES=`find "." -type f`
+echo "#! /usr/bin/env bash" > CHECKSUM
+echo "trap \"popd > /dev/null\" EXIT" >> CHECKSUM
+echo "pushd \$(dirname \$0) > /dev/null" >> CHECKSUM
+echo "SUM=\"" >> CHECKSUM
+echo "$FILES" | sed -e 's/^/"/' -e 's/$/"/' | xargs sha256sum | tee -a CHECKSUM
+echo "\"" >> CHECKSUM
+echo "echo \"\$SUM\" | grep \"^[a-fA-F0-9]\" | sha256sum -c" >> CHECKSUM
+chmod a+x CHECKSUM
+
