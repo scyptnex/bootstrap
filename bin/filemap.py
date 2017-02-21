@@ -33,6 +33,7 @@
 |   -d <delim>    use <delim> as field delimiter (instead of tab)         |
 |   -f <f>=<val>  force all records to have a field <f> with valye <val>  |
 |   -h            print this help message                                 |
+|   -r            Treat the content-template as regex, escaping as needed |
 +-------------------------------------------------------------------------+
 """
 
