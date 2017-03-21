@@ -1,0 +1,47 @@
+#! /usr/bin/env bash
+
+#=========================================================================#
+#                                 flipper                                 #
+#                                                                         #
+# Author: nic                                                             #
+# Date: 2017-Mar-21                                                       #
+#                                                                         #
+# Creates a daemon that flips a directory from a protected GPG backend to #
+# a plaintext frontend                                                    #
+#=========================================================================#
+
+set -e
+set -u
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+DAEMON="f"
+while getopts "dh" opt; do
+    case $opt in
+        h)
+            usage
+            exit 0
+            ;;
+        d)
+            DAEMON="t"
+            ;;
+        \?)
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $(($OPTIND -1))
+
+if [ $DAEMON == "f" ]; then
+    if ps -e -o "cmd" | grep "sh.*$(basename $0).*-d" | grep -v "grep" > /dev/null 2>/dev/null; then
+        echo "running"
+    else
+        echo "spawning the daemon process"
+        nohup $(basename $0) -d > /dev/null 2>/dev/null &
+    fi
+else
+    sleep 20
+fi
