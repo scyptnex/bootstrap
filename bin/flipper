@@ -17,15 +17,31 @@ function usage(){
     grep "^#.*#$" $0
 }
 
-DAEMON="f"
-while getopts "dh" opt; do
+function errxit() {
+    echo "Error:" >&2
+    echo " - $@" >&2
+    echo " - Rerun with \"-h\" for help" >&2
+    exit 1
+}
+
+META=".flipper"
+CLEAN="false"
+FLIP_DIR="/tmp/flipped"
+RECIPIENT="$(whoami)"
+while getopts "cd:hr:" opt; do
     case $opt in
+        c)
+            CLEAN="true"
+            ;;
+        d)
+            FLIP_DIR="$OPTARG"
+            ;;
         h)
             usage
             exit 0
             ;;
-        d)
-            DAEMON="t"
+        r)
+            RECIPIENT="$OPTARG"
             ;;
         \?)
             usage
@@ -35,13 +51,25 @@ while getopts "dh" opt; do
 done
 shift $(($OPTIND -1))
 
-if [ $DAEMON == "f" ]; then
-    if ps -e -o "cmd" | grep "sh.*$(basename $0).*-d" | grep -v "grep" > /dev/null 2>/dev/null; then
-        echo "running"
-    else
-        echo "spawning the daemon process"
-        nohup $(basename $0) -d > /dev/null 2>/dev/null &
-    fi
+if [ -f "$FLIP_DIR/$META.path" ]; then
+    BASE_DIR="$(cat $FLIP_DIR/$META.path)"
 else
-    sleep 20
+    [ $# -lt 1 ] && errxit "Please specify the flip directory"
+    [ -d "$1" ]  || errxit "\"$1\" is not a directory"
+    BASE_DIR="$(readlink -f $1)"
+    echo "Initialising the flip directory with $BASE_DIR"
+    mkdir -p "$FLIP_DIR"
+    echo $BASE_DIR > "$FLIP_DIR/$META.path"
 fi
+
+[ -f "$BASE_DIR/$META"* ] && errxit "A file that will override flipper's meta file has been found in the base directory, aborting"
+gpg --list-secret-keys "$RECIPIENT" >/dev/null 2>/dev/null || errxit "Unable to find suitable private key for \"$RECIPIENT\""
+gpg --list-keys "$RECIPIENT" >/dev/null 2>/dev/null || errxit "Unable to find suitable public key for \"$RECIPIENT\""
+
+echo $BASE_DIR "->" $FLIP_DIR " : " $RECIPIENT
+
+if [ $CLEAN == "true" ]; then
+    echo "Cleaning $FLIP_DIR"
+    rm -rf $FLIP_DIR
+fi
+
