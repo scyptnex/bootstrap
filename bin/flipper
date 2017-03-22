@@ -68,6 +68,16 @@ gpg --list-keys "$RECIPIENT" >/dev/null 2>/dev/null || errxit "Unable to find su
 
 echo $BASE_DIR "->" $FLIP_DIR " : " $RECIPIENT
 
+touch "$FLIP_DIR/$META.cur" # create an empty current state if there isnt one
+find "$FLIP_DIR" -type f | xargs stat -c "%Y %n" | grep -v "\.flipper" > $FLIP_DIR/$META.flip || echo
+find "$BASE_DIR" -type f | xargs stat -c "%Y %n" | grep -E "\.(gpg|asc)$" > $FLIP_DIR/$META.base || echo
+
+python3 TMP.py "$FLIP_DIR" "$BASE_DIR" "$FLIP_DIR/$META.flip" "$FLIP_DIR/$META.cur" "$FLIP_DIR/$META.base"
+
+echo done
+rm $FLIP_DIR/$META.flip $FLIP_DIR/$META.base
+find "$FLIP_DIR" -type f | xargs stat -c "%Y %n" | grep -v "\.flipper" > $FLIP_DIR/$META.cur || echo
+
 if [ $CLEAN == "true" ]; then
     echo "Cleaning $FLIP_DIR"
     rm -rf $FLIP_DIR
