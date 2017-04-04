@@ -81,6 +81,9 @@ case "$(hostname)" in
     ghesseran|Makraan)
         PCOL=2
         ;;
+    Therauvra)
+        PCOL=7
+        ;;
     *)
         PCOL=0
         ;;
