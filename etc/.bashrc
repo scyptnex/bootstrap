@@ -57,11 +57,12 @@ if [ -d $HOME/soft/go ]; then
 fi
 export GRADLE_OPTS="-Dorg.gradle.daemon=true"
 
-if which gnome-keyring-daemon >/dev/null 2>/dev/null ; then
-    # Starting the gnome keyring
-    eval $(/usr/bin/gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
-    export GNOME_KEYRING_CONTROL GNOME_KEYRING_PID GPG_AGENT_INFO SSH_AUTH_SOCK
-fi
+# TODO fix this
+#- if which gnome-keyring-daemon >/dev/null 2>/dev/null ; then
+#-     # Starting the gnome keyring
+#-     eval $(/usr/bin/gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
+#-     export GNOME_KEYRING_CONTROL GNOME_KEYRING_PID GPG_AGENT_INFO SSH_AUTH_SOCK
+#- fi
 
 #=========#
 # History #
