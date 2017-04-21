@@ -5,8 +5,9 @@
 # Date: 2017-Apr-21                                                       #
 #=========================================================================#
 
-export ROFLOL="foobar"
-
+if [ "$DESKTOP_SESSION" = "i3" ]; then
+    export $(gnome-keyring-daemon --start --components=pkcs11,secrets,ssh,gnupg)
+fi
 
 #=====================================#
 # This came from the default .profile #

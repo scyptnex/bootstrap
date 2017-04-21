@@ -172,7 +172,8 @@ bar {
 
 bindsym $mod+Shift+x exec i3lock -i ~/Documents/b2.png -c 000000
 
-exec google-chrome
+exec xdg-open http://mail.google.com
+exec xdg-open http://outlook.office365.com
 exec thunderbird
 exec ~/.config/i3/gnome-keyring-starter.sh
 #exec_always feh --bg-scale /path/to/picture
