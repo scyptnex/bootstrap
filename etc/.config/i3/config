@@ -101,8 +101,8 @@ set $ws5  "5 "
 set $ws6  "6 "
 set $ws7  "7 "
 set $ws8  "8 "
-set $ws9  "9 "
-set $ws10 "10 "
+set $ws9  "9 "
+set $ws10 "10 "
 
 # switch to workspace
 bindsym $mod+1 workspace $ws1
@@ -128,8 +128,10 @@ bindsym $mod+Shift+8 move container to workspace $ws8
 bindsym $mod+Shift+9 move container to workspace $ws9
 bindsym $mod+Shift+0 move container to workspace $ws10
 
-assign [class="Google-chrome"] $ws1
-assign [class="Thunderbird"]   $ws2
+assign [class="Google-chrome"]     $ws1
+assign [class="Thunderbird"]       $ws2
+assign [class="TeXstudio"]         $ws4
+assign [class="jetbrains-idea-ce"] $ws5
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -176,4 +178,5 @@ exec xdg-open http://mail.google.com
 exec xdg-open http://outlook.office365.com
 exec thunderbird
 exec ~/.config/i3/gnome-keyring-starter.sh
+exec --no-startup-id i3-msg "workspace $ws3; exec i3-sensible-terminal"
 #exec_always feh --bg-scale /path/to/picture
