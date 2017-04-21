@@ -170,8 +170,9 @@ bar {
         status_command i3status
 }
 
-bindsym $mod+Shift+x exec i3lock
+bindsym $mod+Shift+x exec i3lock -i ~/Documents/b2.png -c 000000
 
 exec google-chrome
+exec thunderbird
 exec ~/.config/i3/gnome-keyring-starter.sh
 #exec_always feh --bg-scale /path/to/picture
