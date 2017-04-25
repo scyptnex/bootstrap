@@ -173,6 +173,7 @@ bar {
 }
 
 bindsym $mod+Shift+x exec i3lock -i ~/Documents/b2.png -c 000000
+bindsym $mod+Shift+v exec i3-sensible-terminal -e "vim -c VSTreeExplore"
 
 exec xdg-open http://mail.google.com
 exec xdg-open http://outlook.office365.com
