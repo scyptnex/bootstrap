@@ -17,7 +17,7 @@
 |   -a NAME     Name of the author field                                |
 |   -b          Force big mode, i.e. draw a big box with no title       |
 |   -h          print this help message                                 |
-|   -o O_A_MSG  Append a big box.s message with an option-style line of |
+|   -o O:A:MSG  Append a big box.s message with an option-style line of |
 |               the form .-O A MSG.                                     |
 |   -t TITLE    Set the title of the box, it will be centered and big-  |
 |               mode will be enabled                                    |
@@ -95,7 +95,7 @@ def boxerize(p, m, w=-1, t="", a="", d="", o=[]):
         # print tha ligned options
         wrapper = textwrap.TextWrapper()
         wrapper.width = w - len(p["W"] + p["E"]) - 6 - maxOpt
-        for opt in o:
+        for opt in sorted(o):
             printed = False
             for line in wrapper.wrap(opt[2]):
                 ostr = opt[0] + opt[1]
