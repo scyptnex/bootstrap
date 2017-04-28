@@ -169,7 +169,7 @@ bindsym $mod+r mode "resize"
 #==================#
 # logout/shutdowns #
 #==================#
-set $lock i3lock -c 00FF00
+set $lock i3lock -e -c 000000 -i ~/.config/i3/lock.png
 set $mode_sys System (enter) Lock, (s) Sleep, (l) Logout, (r) Reboot, (q) Shutdown
 mode "$mode_sys" {
     # System locking
