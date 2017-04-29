@@ -69,7 +69,8 @@ class Amused:
 
     def play(self):
         paths = [os.path.join(*t) for t in self.playlist]
-        subprocess.Popen(["vlc", "--one-instance"] + paths, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.call(["vlc", "-I", "ncurses"] + paths)
+        #subprocess.Popen(["vlc", "-I", "ncurses"] + paths, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def path_to_tuple(p):
     (tmp, title) = os.path.split(p.decode("utf-8")) # hard coding because i am the only person who actually uses
