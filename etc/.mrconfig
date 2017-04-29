@@ -1,0 +1,17 @@
+[DEFAULT]
+git_lg = git lg -10
+
+[bootstrap]
+checkout = git clone 'git@github.com:scyptnex/bootstrap.git' 'bootstrap'
+
+[project/computing]
+checkout = git clone 'git@github.com:scyptnex/computing.git' 'computing'
+
+[project/pages]
+checkout = git clone 'git@github.com:scyptnex/scyptnex.github.io.git' 'pages'
+
+[uni/cauliflower]
+checkout = git clone 'git@bitbucket.org:scyptnex/cauliflower.git' 'cauliflower'
+
+[uni/tex]
+checkout = git clone 'git@bitbucket.org:scyptnex/tex.git' 'tex'
