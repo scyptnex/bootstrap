@@ -109,24 +109,27 @@ class ${HUMAN_NAME}:
     def __init__(self, sys_args):
         try:
             opts, args = getopt.getopt(sys_args[1:], "h", ["help"])
-        except getopt.error, msg:
-            print msg
-            print "for help use --help"
-            sys.exit(2)
+        except getopt.error as exc:
+            raise Exception(exc)
         for o, a in opts:
             if o in ("-h", "--help"):
-                print __doc__
+                print(__doc__)
                 sys.exit(0)
-        print str(args)
+        print(str(args))
 
 if __name__ == "__main__":
-    ${HUMAN_NAME}(sys.argv)
+    try:
+        ${HUMAN_NAME}(sys.argv)
+    except Exception as exc:
+        print(exc, file=sys.stderr)
+        print("for help use --help", file=sys.stderr)
+        sys.exit(2)
 '''),
 
 # Python pseudo
 "py_pseudo":([], r'''
 #! /usr/bin/env sh
-exec python $$(dirname `readlink -f $$0`)/${HUMAN_NAME}.py "$$@"
+exec python3 $$(dirname `readlink -f $$0`)/${HUMAN_NAME}.py "$$@"
 '''),
 
 # Shell
