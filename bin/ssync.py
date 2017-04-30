@@ -22,23 +22,33 @@
 __doc__ = __doc__.strip()
 
 import getopt
+import getpass
 import os
 import signal
 import sys
 import tempfile
 import time
+import traceback
 import xgpg
 
 class ed_pair:
 
-    def __init__(self, enc, dec):
+    def __init__(self, enc, dec, rec=[]):
         self.enc = enc
-        self.et = os.path.getmtime(enc) if os.path.exists(enc) else -1
+        self.et = -1
         self.dec = dec
-        self.dt = os.path.getmtime(dec) if os.path.exists(dec) else -1
+        self.dt = -1
+        self.recipients = rec
+        if os.path.exists(enc):
+            self.et = os.path.getmtime(self.enc)
+            self.recipients = xgpg.gpg_recipients(self.enc)
+        if os.path.exists(dec):
+            self.dt = os.path.getmtime(self.dec)
+        if len(self.recipients) == 0:
+            self.recipients = [getpass.getuser()]
 
     def manage(self):
-        print(str(self), xgpg.gpg_recipients(self.enc))
+        print(str(self), self.recipients)
 
     def encr(self):
         print("Encrypting", self.dec)
@@ -67,6 +77,7 @@ class ssync:
         self.dec_dir = tempfile.mkdtemp(prefix=os.path.basename(self.enc_dir) + "_")
         self.known = {}
         self.going = False
+        self.default_recipients=set()
         self.search(self.enc_dir)
 
     def search(self, p, low=True):
@@ -82,9 +93,11 @@ class ssync:
             other = os.path.join(self.dec_dir, os.path.relpath(p, self.enc_dir))
             other = os.path.join(os.path.dirname(other), os.path.basename(other)[:-4])
             if not p in self.known:
+                [self.default_recipients.add(r) for r in xgpg.gpg_recipients(p)]
                 self.known[p] = ed_pair(p, other)
 
     def synchronise(self):
+        print(self.default_recipients)
         for k, v in self.known.items():
             v.manage()
 
@@ -120,6 +133,8 @@ if __name__ == "__main__":
         signal.signal(signal.SIGTERM, s.sig_handl)
         s.watch()
     except Exception as exc:
+        traceback.print_tb(exc)
+        print("", file=sys.stderr)
         print(exc, file=sys.stderr)
         print("For help, use -h", file=sys.stderr)
         exit(1)

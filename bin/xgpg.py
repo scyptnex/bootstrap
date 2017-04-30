@@ -37,7 +37,6 @@ import os
 
 def gpg_recipients(filename):
     call = ["gpg", "--list-only", "--no-default-keyring", "--secret-keyring", "/dev/null", filename]
-    print(subprocess.check_output(call, stderr=subprocess.STDOUT).strip().split(b"\n"))
     return [s.strip()[1:-1].decode("utf-8") for s in subprocess.check_output(call, stderr=subprocess.STDOUT).strip().split(b"\n")[1::2]]
 
 def gpg_decrypt(cipherfile, plainfile):
