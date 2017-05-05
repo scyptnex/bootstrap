@@ -14,6 +14,8 @@ function csum(){
     sha256sum "$@" | sed 's/[^a-fA-F0-9].*//'
 }
 
+[ ! -e "./EXIT" ] || (echo "Exiting due to the EXIT file" && exit 1)
+
 [ $# == 3 ] || (echo "locker <source> <dest> <logfile>" && exit 1)
 
 EXE="$(readlink -f $0)"
