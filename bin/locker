@@ -1,0 +1,49 @@
+#! /usr/bin/env bash
+
+#=========================================================================#
+#                                 locker                                  #
+#                                                                         #
+# Author: nic                                                             #
+# Date: 2017-May-05                                                       #
+#=========================================================================#
+
+set -e
+set -u
+
+function csum(){
+    sha256sum "$@" | sed 's/[^a-fA-F0-9].*//'
+}
+
+[ $# == 3 ] || (echo "locker <source> <dest> <logfile>" && exit 1)
+
+EXE="$(readlink -f $0)"
+SRC="$1"
+DST="$2"
+LOGF="$3"
+
+[ -e "$SRC" ] || (echo "cant find source" && exit 1)
+[ -e "$DST" ] || (echo "cant find dest" && exit 1)
+[ -f "$LOGF" ] || touch "$LOGF"
+
+echo "$DST" "$SRC" >> "$LOGF"
+
+if [ -d "$SRC" ]; then
+    for FI in "$SRC"/*; do
+        if [ -f "$FI" ]; then
+            OUT=`mktemp -p "$DST" F-XXXXXXXX.gpg`
+            "$EXE" "$FI" "$OUT" "$LOGF"
+        elif [ -d "$FI" ]; then
+            OUT=`mktemp -p "$DST" -d D-XXXXXXXX`
+            "$EXE" "$FI" "$OUT" "$LOGF"
+        fi
+    done
+else
+    ORIGINAL=`csum "$SRC"`
+    gpg --batch --yes -er $(whoami) -o "$DST" "$SRC"
+    gpg -d "$DST" 2>/dev/null > CHECK_FILE
+    DECRYP=`csum CHECK_FILE`
+    if [ "$ORIGINAL" == "$DECRYP" ]; then
+        rm "$SRC"
+    fi
+fi
+rm -f CHECK_FILE
