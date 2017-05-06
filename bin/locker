@@ -40,12 +40,18 @@ if [ -d "$SRC" ]; then
         fi
     done
 else
+    ls -lh "$SRC"
     ORIGINAL=`csum "$SRC"`
     gpg --batch --yes -er $(whoami) -o "$DST" "$SRC"
     gpg -d "$DST" 2>/dev/null > CHECK_FILE
     DECRYP=`csum CHECK_FILE`
     if [ "$ORIGINAL" == "$DECRYP" ]; then
         rm "$SRC"
+    else
+        echo MISSMATCH
+        echo $SRC
+        echo $DST
+        exit 2
     fi
 fi
 rm -f CHECK_FILE
