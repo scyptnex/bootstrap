@@ -40,10 +40,10 @@ def gpg_recipients(filename):
     return [s.strip()[1:-1].decode("utf-8") for s in subprocess.check_output(call, stderr=subprocess.STDOUT).strip().split(b"\n")[1::2]]
 
 def gpg_decrypt(cipherfile, plainfile):
-    subprocess.check_call(["gpg", "-o", plainfile, cipherfile])
+    subprocess.check_call(["gpg", "--batch", "--yes", "-o", plainfile, cipherfile])
 
 def gpg_encrypt(plainfile, cipherfile, recipients, ascii_mode):
-    enc_call = ['gpg', '-e']
+    enc_call = ['gpg', "--batch", "--yes", '-e']
     if ascii_mode:
         enc_call += ['-a']
     for r in recipients:

@@ -9,13 +9,7 @@
 | changes to one will be reflected in the other                           |
 |                                                                         |
 | Usage:                                                                  |
-|   ssync [Options] <encrypted-directory>                                 |
-|                                                                         |
-|                                                                         |
-|                                                                         |
-|                                                                         |
-|                                                                         |
-|                                                                         |
+|   ssync [Options] <encrypted-directory> [decrypted-directory]           |
 +-------------------------------------------------------------------------+
 """
 
@@ -48,13 +42,27 @@ class ed_pair:
             self.recipients = [getpass.getuser()]
 
     def manage(self):
-        print(str(self), self.recipients)
+        if not os.path.exists(self.enc) :
+            self.encr()
+        elif not os.path.exists(self.dec) :
+            self.decr()
+        else:
+            real_et = os.path.getmtime(self.enc)
+            real_dt = os.path.getmtime(self.dec)
+            if real_et > self.et :
+                self.decr()
+            elif real_dt > self.dt :
+                self.encr()
+        self.et = os.path.getmtime(self.enc)
+        self.dt = os.path.getmtime(self.dec)
 
     def encr(self):
-        print("Encrypting", self.dec)
+        print(str(self), "enc")
+        xgpg.gpg_encrypt(self.dec, self.enc, self.recipients, False)
 
     def decr(self):
-        print("Decrypting", self.enc)
+        print(str(self), "dec")
+        xgpg.gpg_decrypt(self.enc, self.dec)
 
     def __str__(self):
         return "%s(%s)<->%s(%s)"%(self.enc, time.ctime(self.et), self.dec, time.ctime(self.dt))
@@ -70,11 +78,18 @@ class ssync:
             if o in ("-h", "--help"):
                 print(__doc__)
                 sys.exit(0)
-        if len(args) != 1 or not os.path.isdir(args[0]):
+        if len(args) < 1 or not os.path.isdir(args[0]):
             raise Exception("Choose exactly one directory to decrypt")
+        if len(args) > 1:
+            p = os.path.abspath(os.path.normpath(args[1]))
+            if os.path.exists(p):
+                raise Exception("Low directory already exists")
+            os.mkdir(p)
+            self.dec_dir = p
+        else:
+            self.dec_dir = tempfile.mkdtemp(prefix=os.path.basename(self.enc_dir) + "_")
         self.pause = 5
         self.enc_dir = os.path.abspath(os.path.normpath(args[0]))
-        self.dec_dir = tempfile.mkdtemp(prefix=os.path.basename(self.enc_dir) + "_")
         self.known = {}
         self.going = False
         self.default_recipients=set()
@@ -83,7 +98,8 @@ class ssync:
     def search(self, p, low=True):
         if os.path.isdir(p):
             for fn in os.listdir(p):
-                self.search(os.path.join(p, fn), low)
+                if not fn[0] == '.':
+                    self.search(os.path.join(p, fn), low)
         elif not low:
             other = os.path.join(self.enc_dir, os.path.relpath(p, self.dec_dir))
             other = os.path.join(os.path.dirname(other), os.path.basename(other))
@@ -97,7 +113,6 @@ class ssync:
                 self.known[p] = ed_pair(p, other)
 
     def synchronise(self):
-        print(self.default_recipients)
         for k, v in self.known.items():
             v.manage()
 
