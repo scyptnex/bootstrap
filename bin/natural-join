@@ -67,15 +67,15 @@ done
 shift $(($OPTIND -1))
 
 [ $# == 2 ] || errxit Please provide 2 files to join with
-[ -f "$1" ] || errxit Can not locate "$1"
-[ -f "$2" ] || errxit Can not locate "$2"
+[ -f "$1" ] || errxit Can not locate "$1", it must be a regular file
+[ -f "$2" ] || errxit Can not locate "$2", it must be a regular file
 
 TMP1=$(mktemp)
 TMP2=$(mktemp)
 
 trap "rm -f $TMP1 $TMP2" EXIT
 
-paste -d "," <(cut -d "$SEP" -f "$F1" "$1") <(cut --complement -d "$SEP" -f "$F1" "$1") | sort > $TMP1
-paste -d "," <(cut -d "$SEP" -f "$F2" "$2") <(cut --complement -d "$SEP" -f "$F2" "$2") | sort > $TMP2
+paste -d "$SEP" <(cut -d "$SEP" -f "$F1" "$1") <(cut --complement -d "$SEP" -f "$F1" "$1") | sort > $TMP1
+paste -d "$SEP" <(cut -d "$SEP" -f "$F2" "$2") <(cut --complement -d "$SEP" -f "$F2" "$2") | sort > $TMP2
 join -t "$SEP" "$TMP1" "$TMP2"
 

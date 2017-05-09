@@ -19,7 +19,7 @@
 #     -h    print this help message                                       #
 #     -k    kill an improperly closed session                             #
 #     -t    force the directory to run as a TagBase                       #
-#     -t    force the directory to run in wait mode                       #
+#     -w    force the directory to run in wait mode                       #
 #-------------------------------------------------------------------------#
 
 set -e
