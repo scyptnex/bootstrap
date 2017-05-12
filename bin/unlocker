@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+#=========================================================================#
+#                                unlocker                                 #
+#                                                                         #
+# Author: nic                                                             #
+# Date: 2017-May-12                                                       #
+#=========================================================================#
+
+set -e
+set -u
+
+function reclaim() {
+    if [ ! -d "$1" ] && [ -s "$1" ]; then
+        ENC="$1"
+        DDIR=$(dirname "$2")
+        DFIL=$(basename "$2")
+        echo $ENC--$DDIR--$DFIL
+        mkdir -p "$DDIR"
+    fi
+}
+
+while read LINE; do
+    reclaim "${LINE%% *}" "${LINE#* }"
+done

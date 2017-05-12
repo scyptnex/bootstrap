@@ -106,7 +106,7 @@ class xgpg:
             if ( a.endswith(".gpg") or a.endswith(".asc") ) and not os.path.isdir(a):
                 enc_dec[a] = self.get_decrypted_mirror(a)
                 if len(self.recipients) == 0 and not os.path.exists(a):
-                    print("Aborting: New file \"%s\" must have at least one recipient" % a)
+                    print("Aborting: New file \"%s\" must have at least one recipient" % a, file=sys.stderr)
                     return
 
         # Determine recipients and mod-times for the files
@@ -131,15 +131,15 @@ class xgpg:
         # re-encrypt the files
         for enc, dec in enc_dec.items():
             if not os.path.exists(dec):
-                print(dec, "captured by command")
+                print(dec, "captured by command", file=sys.stderr)
                 continue
             elif os.path.getmtime(dec) > enc_t[enc]:
-                print(dec, "changed, re-encrypting for:", " ".join(enc_r[enc]))
+                print(dec, "changed, re-encrypting for:", " ".join(enc_r[enc]), file=sys.stderr)
                 if os.path.exists(enc):
                     os.remove(enc)
                 gpg_encrypt(dec, enc, enc_r[enc], enc.endswith("asc"))
             else:
-                print(dec, "unchanged, skipping re-encryption")
+                print(dec, "unchanged, skipping re-encryption", file=sys.stderr)
             if not self.keep:
                 os.remove(dec)
         self.clean_temp()
