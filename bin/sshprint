@@ -77,7 +77,7 @@ if [ $# == 1 ]; then
     echo " Server: $SERVER"
     echo "Printer: $PRINTER"
     
-    FNAME=`basename $1` # use $1 here so we get the right name even with a temp
+    FNAME=`basename "$1"` # use $1 here so we get the right name even with a temp
     TMP=`ssh $SERVER mktemp --tmpdir ${FNAME%.pdf}.XXX.pdf`
     echo " Remote: $TMP"
     scp "$FILE" $SERVER:$TMP
