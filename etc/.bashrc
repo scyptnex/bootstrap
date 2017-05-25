@@ -44,6 +44,14 @@ alias latexmk="latexmk -pdf"
 alias mr="mr -j4"
 alias opn="xdg-open"
 alias panda="pandoc -f markdown -o PANDA.pdf"
+alias shutup="sudo apt update &&
+              sudo apt -y upgrade &&
+              sudo apt -y dist-upgrade &&
+              sudo apt -y autoremove &&
+              sudo apt -y autoclean &&
+              echo Shutting down in 10 seconds &&
+              sleep 10 &&
+              poweroff"
 
 #=======================#
 # Environment Variables #
@@ -97,7 +105,7 @@ case "$(hostname)" in
         PCOL=0
         ;;
 esac
-PS1="\n\[$(tput bold)$(tput setaf $PCOL)\]\u@\h: \[$(tput setaf 4)\]\w\[$(tput sgr0)\] \$ "
+PS1="\n\[$(tput setaf 8)\][\t] \[$(tput bold)$(tput setaf $PCOL)\]\u@\h: \[$(tput setaf 4)\]\w\[$(tput sgr0)\] \$ "
 case "$TERM" in
     # for xterm and alike, set the name of the window
     xterm*|rxvt*)
