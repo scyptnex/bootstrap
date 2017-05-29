@@ -87,9 +87,14 @@ bindsym $mod+Shift+space floating toggle
 # change focus between tiling / floating windows
 bindsym $mod+space focus mode_toggle
 
-
 # focus the parent container
 bindsym $mod+a focus parent
+
+# audio
+set $vol ~/bootstrap/bin/volumer -v
+bindsym XF86AudioRaiseVolume exec --no-startup-id $vol up
+bindsym XF86AudioLowerVolume exec --no-startup-id $vol down
+bindsym XF86AudioMute exec --no-startup-id $vol mute
 
 # focus the child container
 #bindsym $mod+d focus child
