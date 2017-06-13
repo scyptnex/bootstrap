@@ -125,6 +125,7 @@ assign [class="Google-chrome"]     $ws1
 assign [class="Thunderbird"]       $ws2
 assign [class="TeXstudio"]         $ws4
 assign [class="jetbrains-idea-ce"] $ws5
+assign [class="QtCreator"]         $ws5
 assign [class="Steam"]             $ws8
 
 # reload the configuration file

@@ -42,7 +42,6 @@ alias cman="man -P \"col -x -b\""
 alias dat="date +%F-%H:%M"
 alias gpgrecipients="gpg --list-only --no-default-keyring --secret-keyring /dev/null"
 alias latexmk="latexmk -pdf"
-alias mr="mr -j4"
 alias opn="xdg-open"
 alias panda="pandoc -f markdown -o PANDA.pdf"
 alias shutup="sudo apt update &&
