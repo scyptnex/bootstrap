@@ -34,10 +34,18 @@ import subprocess
 import sys
 import tempfile
 import os
+import re
 
 def gpg_recipients(filename):
     call = ["gpg", "--list-only", "--no-default-keyring", "--secret-keyring", "/dev/null", filename]
-    return [s.strip()[1:-1].decode("utf-8") for s in subprocess.check_output(call, stderr=subprocess.STDOUT).strip().split(b"\n")[1::2]]
+    r = [s.strip()[1:-1].decode("utf-8") for s in subprocess.check_output(call, stderr=subprocess.STDOUT).strip().split(b"\n")[1::2]]
+    if r:
+        return r
+    call = ["gpg", "--list-packets", "--no-default-keyring", "--secret-keyring", "/dev/null", filename]
+    r = [m.group(1) for m in re.finditer(re.compile("keyid[ \t]*([0-9a-fA-F]+)"), subprocess.check_output(call, stderr=subprocess.STDOUT).strip().decode("utf-8"))]
+    if r:
+        return r
+    raise exception("Could not determine the encryption key for " + filename)
 
 def gpg_decrypt(cipherfile, plainfile):
     subprocess.check_call(["gpg", "--batch", "--yes", "-o", plainfile, cipherfile])
