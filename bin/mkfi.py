@@ -145,6 +145,12 @@ function usage(){
     grep "^#.*#$$" $$0
 }
 
+function errxit(){
+    [ $$# -gt 0 ] && echo "Error: $$@" >&2
+    echo "Re-run with -h for help" >&2
+    exit 1
+}
+
 while getopts "h" opt; do
     case $$opt in
         h)
@@ -152,8 +158,7 @@ while getopts "h" opt; do
             exit 0
             ;;
         \?)
-            usage
-            exit 1
+            errxit Unrecognised command
             ;;
     esac
 done
