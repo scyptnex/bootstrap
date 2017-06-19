@@ -36,7 +36,6 @@ function errxit(){
     exit 1
 }
 
-
 FORMAT="zip"
 NAME=""
 while getopts "d:fhjln:z" opt; do
@@ -72,6 +71,43 @@ shift $(($OPTIND -1))
 
 [ $# == 1 ] || errxit please specity at most one archive/directory
 
-echo $FORMAT
-echo $NAME
-echo $@
+if [ -d "$1" ]; then
+    if [ -z "$NAME" ]; then
+        NAME=`basename "$1"`
+    fi
+    case $FORMAT in
+        zip)
+            TFILE=`mktemp "${NAME}_XXX.zip"`
+            RFILE="$NAME.zip"
+            COMMAND="zip -vr"
+            ;;
+        gz)
+            TFILE=`mktemp "${NAME}_XXX.tgz"`
+            RFILE="$NAME.tgz"
+            COMMAND="tar -czvf"
+            ;;
+        bz)
+            TFILE=`mktemp "${NAME}_XXX.tar.bz2"`
+            RFILE="$NAME.tar.bz2"
+            COMMAND="tar -cjvf"
+            ;;
+    esac
+    rm "$TFILE"
+    pushd "$1"
+    rm -f ./CHECKSUM
+    checksummarize . > /dev/null
+    popd
+    $COMMAND "$TFILE" "$1"
+    if [ ! -e "$RFILE" ]; then
+        mv "$TFILE" "$RFILE"
+    fi
+    rm "$1/CHECKSUM"
+elif [ ! -f "$1" ]; then
+    errxit "File \"$1\" does not exist"
+elif [[ "$1" == *.zip ]]; then
+    errxit "ZIP to be done" # TODO
+elif [[ "$1" == *.tar.* ]] || [[ "$1" == *.tgz ]]; then
+    errxit "TAR to be done" # TODO
+else
+    errxit "unrecognised archive file \"$1\""
+fi
