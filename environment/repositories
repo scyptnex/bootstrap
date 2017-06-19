@@ -15,3 +15,20 @@ uni/jens-cfl ssh://hg@bitbucket.org/jensdietrich/cfl-reachability
 # project/recipeweb  git@bitbucket.org:scyptnex/recipeweb.git
 # project/general    ssh://hg@bitbucket.org/scyptnex/general
 # uni/nhol8058        https://svn.it.usyd.edu.au/svn/nhol8058
+# Main
+bootstrap git@github.com:scyptnex/bootstrap.git
+
+# Misc
+project/computing git@github.com:scyptnex/computing.git
+project/lambda-calculator git@github.com:scyptnex/lambda-calculator.git
+project/pages git@github.com:scyptnex/scyptnex.github.io.git
+
+# Uni
+uni/cauliflower git@bitbucket.org:scyptnex/cauliflower.git
+uni/dompts git@bitbucket.org:bernhard_scholz/dompts.git
+uni/jens-cfl ssh://hg@bitbucket.org/jensdietrich/cfl-reachability
+uni/souffle https://github.com/souffle-lang/souffle
+uni/tex git@bitbucket.org:scyptnex/tex.git
+
+# Vim
+.vim/bundle/Vundle.vim git@github.com:VundleVim/Vundle.vim.git
