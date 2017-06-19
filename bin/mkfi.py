@@ -94,7 +94,7 @@ public class ${HUMAN_NAME} {
 '''),
 
 # Python
-"py":(["--box"], r'''
+"py":(["--box", "-o", "h::Display this help message"], r'''
 """
 ${BOX}
 """
@@ -133,7 +133,7 @@ exec python3 $$(dirname `readlink -f $$0`)/${HUMAN_NAME}.py "$$@"
 '''),
 
 # Shell
-"sh":(["--shell"], r'''
+"sh":(["--shell", "-o", "h::Display this help message"], r'''
 #! /usr/bin/env bash
 
 ${BOX}
