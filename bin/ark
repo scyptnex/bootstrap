@@ -102,12 +102,15 @@ if [ -d "$1" ]; then
         mv "$TFILE" "$RFILE"
     fi
     rm "$1/CHECKSUM"
-elif [ ! -f "$1" ]; then
-    errxit "File \"$1\" does not exist"
-elif [[ "$1" == *.zip ]]; then
-    errxit "ZIP to be done" # TODO
-elif [[ "$1" == *.tar.* ]] || [[ "$1" == *.tgz ]]; then
-    errxit "TAR to be done" # TODO
+elif [ -f "$1" ]; then
+    if [[ "$1" == *.zip ]]; then
+        COMMAND="unzip"
+    elif [[ "$1" == *.tar.* ]] || [[ "$1" == *.tgz ]]; then
+        COMMAND="tar -xvf"
+    else
+        errxit "Unknown archive format for \"$1\""
+    fi
+    $COMMAND "$1"
 else
-    errxit "unrecognised archive file \"$1\""
+    errxit "File \"$1\" does not exist"
 fi
