@@ -1,0 +1,77 @@
+#! /usr/bin/env bash
+
+#=========================================================================#
+#                                   ark                                   #
+#                                                                         #
+# Author: nic                                                             #
+# Date: 2017-Jun-19                                                       #
+#                                                                         #
+# The archiving utility. Compresses folders into a checksummed archive,   #
+# or uncompresses and checks archives into a folder. By default, the zip  #
+# format is used (for portability reasons).                               #
+#                                                                         #
+# Usage:                                                                  #
+#   ark [Options] <archive/directory>                                     #
+#                                                                         #
+# Options:                                                                #
+#   -d <server>  deploy the archive via scp to <server>                   #
+#   -f           fast mode, do not create or verify checksums             #
+#   -h           print this help message                                  #
+#   -j           When compressing, use .tar.bz2 format                    #
+#   -l           just list contents, do not uncompress                    #
+#   -n <name>    Override the default name with <name>                    #
+#   -z           When compressing, use .tgz format                        #
+#=========================================================================#
+
+set -e
+set -u
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+function errxit(){
+    [ $# -gt 0 ] && echo "Error: $@" >&2
+    echo "Re-run with -h for help" >&2
+    exit 1
+}
+
+
+FORMAT="zip"
+NAME=""
+while getopts "d:fhjln:z" opt; do
+    case $opt in
+        d)
+            errxit deploy not implemented
+            ;;
+        f)
+            errxit fast not implemented
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        j)
+            FORMAT="bz"
+            ;;
+        l)
+            errxit list not implemented
+            ;;
+        n)
+            NAME="$OPTARG"
+            ;;
+        z)
+            FORMAT="gz"
+            ;;
+        \?)
+            errxit Unrecognised command
+            ;;
+    esac
+done
+shift $(($OPTIND -1))
+
+[ $# == 1 ] || errxit please specity at most one archive/directory
+
+echo $FORMAT
+echo $NAME
+echo $@
