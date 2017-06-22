@@ -37,8 +37,9 @@ function errxit(){
     exit 1
 }
 
-FORMAT=""
 ARCHIVING="false"
+FORMAT=""
+LIST="false"
 NAME=""
 while getopts "d:fghjln:z" opt; do
     case $opt in
@@ -59,7 +60,7 @@ while getopts "d:fghjln:z" opt; do
             FORMAT="bz"
             ;;
         l)
-            errxit list not implemented
+            LIST="true"
             ;;
         n)
             NAME="$OPTARG"
@@ -94,51 +95,80 @@ elif [[ "$1" == *.tar.* ]]; then
 fi
 [ -z "$FORMAT" ] && errxit "Unknown archive format for \"$1\""
 
-echo $FORMAT
-echo $ARCHIVING
-echo ${1%.tgz}
-
-exit 0
-
-    if [ -z "$NAME" ]; then
-        NAME=`basename "$1"`
-    fi
-    case $FORMAT in
-        zip)
-            TFILE=`mktemp "${NAME}_XXX.zip"`
-            RFILE="$NAME.zip"
-            COMMAND="zip -vr"
-            ;;
-        gz)
-            TFILE=`mktemp "${NAME}_XXX.tgz"`
-            RFILE="$NAME.tgz"
-            COMMAND="tar -czvf"
-            ;;
-        bz)
-            TFILE=`mktemp "${NAME}_XXX.tar.bz2"`
-            RFILE="$NAME.tar.bz2"
-            COMMAND="tar -cjvf"
-            ;;
-    esac
-    rm "$TFILE"
+#===================#
+# creating archives #
+#===================#
+if [ "$ARCHIVING" == "true" ]; then
+    [ "$LIST" == "true" ] && ls "$1" && exit 0
+    [ -z "$NAME" ] && NAME=`basename $1`
+    # make a checksum file
+    # TODO make the liwest level dir (i.e. basename and dirname)
+    trap "rm \"$1/CHECKSUM\"" EXIT
     pushd "$1"
     rm -f ./CHECKSUM
     checksummarize . > /dev/null
     popd
-    $COMMAND "$TFILE" "$1"
+    case $FORMAT in
+        zip)
+            TFILE=`mktemp "${NAME}_XXX.zip"`
+            RFILE="$NAME.zip"
+            zip -r - "$1" > "$TFILE"
+            ;;
+        gz)
+            TFILE=`mktemp "${NAME}_XXX.tgz"`
+            RFILE="$NAME.tgz"
+            tar -czv "$1" > "$TFILE"
+            ;;
+        bz)
+            TFILE=`mktemp "${NAME}_XXX.tar.bz2"`
+            RFILE="$NAME.tar.bz2"
+            tar -cjv "$1" > "$TFILE"
+            ;;
+    esac
     if [ ! -e "$RFILE" ]; then
         mv "$TFILE" "$RFILE"
     fi
-    rm "$1/CHECKSUM"
-elif [ -f "$1" ]; then
-    if [[ "$1" == *.zip ]]; then
-        COMMAND="unzip"
-    elif [[ "$1" == *.tar.* ]] || [[ "$1" == *.tgz ]]; then
-        COMMAND="tar -xvf"
-    else
-        errxit "Unknown archive format for \"$1\""
-    fi
-    $COMMAND "$1"
+
+#=====================#
+# extracting archives #
+#=====================#
 else
-    errxit "File \"$1\" does not exist"
+    BNAME=`basename "$1"`
+    case $FORMAT in
+        zip)
+            [ -z "$NAME" ] && NAME="${BNAME%.zip}"
+            BEFORE="unzip"
+            AFTER="-d"
+            LST="unzip -l"
+            ;;
+        gz)
+            if [ -z "$NAME" ]; then
+                NAME="${BNAME%.tgz}"
+                NAME="${NAME%.tar.gz}"
+            fi
+            BEFORE="tar -xvf"
+            AFTER="-C"
+            LST="tar -tf"
+            ;;
+        bz)
+            [ -z "$NAME" ] && NAME="${BNAME%.tar.*}"
+            BEFORE="tar -xvf"
+            AFTER="-C"
+            LST="tar -tf"
+            ;;
+    esac
+    [ "$LIST" == "true" ] && $LST $1 && exit 0
+    OUT=`mktemp -d`
+    trap "rm -rf $OUT" EXIT
+    $BEFORE "$1" $AFTER "$OUT"
+    if [ `ls -A "$OUT" | wc -l` == 1 ] && [ -d "$OUT/"* ]; then
+        OUT=`readlink -f "$OUT/"*`
+    fi
+    #TODO checksum
+    if [ -e "$NAME" ]; then
+        FINAL=`mktemp -d ${NAME}_XXX`
+        echo "\"$NAME\" already exists, extracting to \"$FINAL\""
+        NAME="$FINAL"
+    fi
+    mv -T "$OUT" "$NAME"
 fi
