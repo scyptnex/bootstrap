@@ -16,11 +16,12 @@
 # Options:                                                                #
 #   -d <server>  deploy the archive via scp to <server>                   #
 #   -f           fast mode, do not create or verify checksums             #
+#   -g           Use .tgz format                                          #
 #   -h           print this help message                                  #
-#   -j           When compressing, use .tar.bz2 format                    #
+#   -j           Use .tar.bz2 format                                      #
 #   -l           just list contents, do not uncompress                    #
 #   -n <name>    Override the default name with <name>                    #
-#   -z           When compressing, use .tgz format                        #
+#   -z           Use .zip format                                          #
 #=========================================================================#
 
 set -e
@@ -36,15 +37,19 @@ function errxit(){
     exit 1
 }
 
-FORMAT="zip"
+FORMAT=""
+ARCHIVING="false"
 NAME=""
-while getopts "d:fhjln:z" opt; do
+while getopts "d:fghjln:z" opt; do
     case $opt in
         d)
             errxit deploy not implemented
             ;;
         f)
             errxit fast not implemented
+            ;;
+        g)
+            FORMAT="gz"
             ;;
         h)
             usage
@@ -60,7 +65,7 @@ while getopts "d:fhjln:z" opt; do
             NAME="$OPTARG"
             ;;
         z)
-            FORMAT="gz"
+            FORMAT="zip"
             ;;
         \?)
             errxit Unrecognised command
@@ -69,9 +74,32 @@ while getopts "d:fhjln:z" opt; do
 done
 shift $(($OPTIND -1))
 
-[ $# == 1 ] || errxit please specity at most one archive/directory
+#========================#
+# work out the format/op #
+#========================#
+if [ $# != 1 ]; then
+    errxit please specify one archive/directory
+elif [ -d "$1" ]; then
+    ARCHIVING="true"
+    [ -z "$FORMAT" ] && FORMAT="zip"
+elif [ ! -f "$1" ]; then
+    errxit "\"$1\" does not exist or is not a plain file"
+elif [[ "$1" == *.zip ]]; then
+    FORMAT="zip"
+elif [[ "$1" == *.tar.gz ]] || [[ "$1" == *.tgz ]]; then
+    FORMAT="gz"
+elif [[ "$1" == *.tar.* ]]; then
+    FORMAT="bz"
+    [[ "$1" == *.tar.bz2 ]] || echo "Warning, tar archive \"$1\" treated as bz2"  >&2
+fi
+[ -z "$FORMAT" ] && errxit "Unknown archive format for \"$1\""
 
-if [ -d "$1" ]; then
+echo $FORMAT
+echo $ARCHIVING
+echo ${1%.tgz}
+
+exit 0
+
     if [ -z "$NAME" ]; then
         NAME=`basename "$1"`
     fi

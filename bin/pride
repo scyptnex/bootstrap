@@ -1,0 +1,56 @@
+#! /usr/bin/env bash
+
+#=========================================================================#
+#                                  pride                                  #
+#                                                                         #
+# Author: nic                                                             #
+# Date: 2017-Jun-22                                                       #
+#=========================================================================#
+
+set -e
+set -u
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+function errxit(){
+    [ $# -gt 0 ] && echo "Error: $@" >&2
+    echo "Re-run with -h for help" >&2
+    exit 1
+}
+
+function prideify(){
+    COLOURS=(196 208 226 28 21 92)
+    NCOLOURS=${#COLOURS[*]}
+    AMT=`tee "$2" | grep -v "^$" | wc -l`
+    LN=0
+    while IFS= read LINE; do
+        echo "$(tput $1 ${COLOURS[$(( (LN*NCOLOURS) / AMT))]} )$LINE$(tput sgr0)"
+        if [ ! -z "$LINE" ]; then
+            LN=$((LN + 1))
+        fi
+    done < "$2"
+}
+
+while getopts "h" opt; do
+    case $opt in
+        h)
+            usage
+            exit 0
+            ;;
+        \?)
+            errxit Unrecognised command
+            ;;
+    esac
+done
+
+FI=`mktemp`
+trap "rm $FI" EXIT
+
+if [ $# == 0 ]; then
+    echo -e "......" | sed 's/./\n                    /g' | prideify "setab" "$FI"
+else
+    cat "$1" | prideify "setaf" "$FI"
+fi
+
