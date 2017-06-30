@@ -10,6 +10,9 @@
 set -e
 set -u
 
+BCOLOURS=(196 208 226  28  21  92)
+FCOLOURS=(217 229 100  85 147 147)
+
 function usage(){
     grep "^#.*#$" $0
 }
@@ -21,20 +24,27 @@ function errxit(){
 }
 
 function prideify(){
-    COLOURS=(196 208 226 28 21 92)
-    NCOLOURS=${#COLOURS[*]}
-    AMT=`tee "$2" | grep -v "^$" | wc -l`
+    #TODO work out the setaf codes in advance
+    NCOLOURS=${#BCOLOURS[*]}
+    AMT=`sed 's/\t/    /g' | tee "$1" | wc -l`
+    WIDEST=`awk 'BEGIN{max=0}{if(length>max){max=length}}END{print max}' "$1"`
     LN=0
+    RSET=$(tput sgr0)
     while IFS= read LINE; do
-        echo "$(tput $1 ${COLOURS[$(( (LN*NCOLOURS) / AMT))]} )$LINE$(tput sgr0)"
-        if [ ! -z "$LINE" ]; then
-            LN=$((LN + 1))
-        fi
-    done < "$2"
+        IDX=$(( (LN*NCOLOURS) / AMT))
+        BG=$(tput setab ${BCOLOURS[$IDX]})
+        FG=$(tput setaf ${FCOLOURS[$IDX]})
+        printf "%s%-${WIDEST}s%s\n" "$BG$FG" "$LINE" "$RSET"
+        LN=$((LN + 1))
+    done < "$1"
 }
 
-while getopts "h" opt; do
+while getopts "fh" opt; do
     case $opt in
+        f)
+            FCOLOURS=("${BCOLOURS[@]}")
+            BCOLOURS=(0 0 0 0 0 0)
+            ;;
         h)
             usage
             exit 0
@@ -44,13 +54,15 @@ while getopts "h" opt; do
             ;;
     esac
 done
+shift $(($OPTIND - 1))
 
 FI=`mktemp`
 trap "rm $FI" EXIT
 
 if [ $# == 0 ]; then
-    echo -e "......" | sed 's/./\n                    /g' | prideify "setab" "$FI"
+    echo
+    echo -n "......" | sed 's/./                    \n/g' | prideify "$FI"
 else
-    cat "$1" | prideify "setaf" "$FI"
+    cat "$1" | prideify "$FI"
 fi
 
