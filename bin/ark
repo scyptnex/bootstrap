@@ -158,7 +158,7 @@ else
             ;;
     esac
     [ "$LIST" == "true" ] && $LST $1 && exit 0
-    OUT=`mktemp -d`
+    OUT=`mktemp -d TMP_${NAME}_XXX`
     trap "rm -rf $OUT" EXIT
     $BEFORE "$1" $AFTER "$OUT"
     if [ `ls -A "$OUT" | wc -l` == 1 ] && [ -d "$OUT/"* ]; then

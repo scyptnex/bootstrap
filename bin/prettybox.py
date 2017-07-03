@@ -160,19 +160,19 @@ def prettybox(cmd_args):
             boxes=[]
             for k in sorted(prefabs.keys()):
                 pcs = {directions[i] : prefabs[k][i] for i in xrange(0, len(directions))}
-                msg = "Aliases: " +  ", ".join([a for (a,v) in aliases.items() if v == k])
+                als = [a for (a,v) in aliases.items() if v == k]
+                msg = "aliases: " +  ", ".join(als) if als else "(no aliases)"
                 boxes.append(boxerize(pcs, msg, w=35, t=k).split("\n"))
             if len(boxes)%2 == 1:
                 boxes.append([])
-            ret=[]
             for i in xrange(0, len(boxes), 2):
                 for j in xrange(0, max(len(boxes[i]), len(boxes[i+1]))):
                     s = 35*" " if j >= len(boxes[i]) else boxes[i][j]
                     s += " "*(36 - len(s))
                     s += 35*" " if j >= len(boxes[i+1]) else boxes[i+1][j]
-                    ret.append(s)
-                ret.append("")
-            return "\n".join(ret);
+                    print(s)
+                print
+            sys.exit(0)
         elif o == "-d":
             date_arg = a
         elif o in ("-h", "--help"):

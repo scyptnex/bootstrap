@@ -138,8 +138,8 @@ exec python3 $$(dirname `readlink -f $$0`)/${HUMAN_NAME}.py "$$@"
 
 ${BOX}
 
-set -e
-set -u
+set -e # error on non-zero exit
+set -u # undefined variables are an error
 
 function usage(){
     grep "^#.*#$$" $$0
