@@ -15,3 +15,6 @@ checkout = git clone 'git@bitbucket.org:scyptnex/cauliflower.git' 'cauliflower'
 
 [uni/tex]
 checkout = git clone 'git@bitbucket.org:scyptnex/tex.git' 'tex'
+
+[.vim/bundle/Vundle.vim]
+checkout = git clone 'https://github.com/gmarik/Vundle.vim.git' 'Vundle.vim'
