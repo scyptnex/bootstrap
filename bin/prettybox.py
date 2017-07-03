@@ -16,6 +16,8 @@
 | OPTIONS:                                                              |
 |   -a NAME     Name of the author field                                |
 |   -b          Force big mode, i.e. draw a big box with no title       |
+|   -d DATE     Override the date field                                 |
+|   -D          Demo the available styles                               |
 |   -h          print this help message                                 |
 |   -o O:A:MSG  Append a big box.s message with an option-style line of |
 |               the form .-O A MSG.                                     |
@@ -24,8 +26,8 @@
 |   -w WIDTH    Set the width of the box                                |
 |                                                                       |
 | STYLE:                                                                |
-|     box, block, doc, inline, plain, shell, tex, ucurve, udouble,      |
-|     uthick                                                            |
+|     the full name of a style (or an alias for it), run the -D demo    |
+|     for the complete list of styles                                   |
 |                                                                       |
 | PIECES:                                                               |
 |     N, NE, E, SE, S, SW, W, NW                                        |
@@ -119,6 +121,7 @@ def prettybox(cmd_args):
     prefabs = {}
     prefabs["box"]=    [u"-",      u"+",      u"|",      u"+",      u"-",      u"+",      u"|",      u"+"]
     prefabs["block"]=  [u"",       u"",       u"",       u"",       u"",       u" */",    u" *",     u"/*"]
+    prefabs["blox"]=   [u"-",      u"*\\",    u"| ",     u"*/",     u"-",      u"\\*",    u" |",     u"/*"]
     prefabs["doc"]=    [u"*",      u"* ",     u"* ",     u"/",      u"*",      u" *",     u" *",     u"/*"]
     prefabs["inline"]= [u"-",      u"+",      u"|",      u"+",      u"-",      u"//",     u"//",     u"//"]
     prefabs["plain"]=  [u"",       u"",       u"",       u"",       u"",       u"",       u"",       u""]
@@ -143,7 +146,7 @@ def prettybox(cmd_args):
             }
     pieces={directions[i] : prefabs["box"][i] for i in xrange(0, len(directions))}
     try:
-        opts, args = getopt.getopt(cmd_args, "a:d:o:t:w:bh", [d + "=" for d in directions] + ["help"] + prefabs.keys() + aliases.keys())
+        opts, args = getopt.getopt(cmd_args, "a:d:o:t:w:bDh", [d + "=" for d in directions] + ["help"] + prefabs.keys() + aliases.keys())
     except getopt.error, msg:
         print msg
         print "for help use --help"
@@ -153,6 +156,23 @@ def prettybox(cmd_args):
             author = a
         elif o == "-b":
             big_box = True
+        elif o == "-D":
+            boxes=[]
+            for k in sorted(prefabs.keys()):
+                pcs = {directions[i] : prefabs[k][i] for i in xrange(0, len(directions))}
+                msg = "Aliases: " +  ", ".join([a for (a,v) in aliases.items() if v == k])
+                boxes.append(boxerize(pcs, msg, w=35, t=k).split("\n"))
+            if len(boxes)%2 == 1:
+                boxes.append([])
+            ret=[]
+            for i in xrange(0, len(boxes), 2):
+                for j in xrange(0, max(len(boxes[i]), len(boxes[i+1]))):
+                    s = 35*" " if j >= len(boxes[i]) else boxes[i][j]
+                    s += " "*(36 - len(s))
+                    s += 35*" " if j >= len(boxes[i+1]) else boxes[i+1][j]
+                    ret.append(s)
+                ret.append("")
+            return "\n".join(ret);
         elif o == "-d":
             date_arg = a
         elif o in ("-h", "--help"):
