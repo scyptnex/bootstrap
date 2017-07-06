@@ -24,8 +24,11 @@ function errxit(){
 }
 
 function prideify(){
-    #TODO work out the setaf codes in advance
     NCOLOURS=${#BCOLOURS[*]}
+    for i in ${!BCOLOURS[*]}; do
+        BCODES[$i]=$(tput setab ${BCOLOURS[$i]})
+        FCODES[$i]=$(tput setaf ${FCOLOURS[$i]})
+    done
     AMT=`sed 's/\t/    /g' | tee "$1" | wc -l`
     WIDEST=`awk 'BEGIN{max=0}{if(length>max){max=length}}END{print max}' "$1"`
     LN=0
@@ -34,7 +37,7 @@ function prideify(){
         IDX=$(( (LN*NCOLOURS) / AMT))
         BG=$(tput setab ${BCOLOURS[$IDX]})
         FG=$(tput setaf ${FCOLOURS[$IDX]})
-        printf "%s%-${WIDEST}s%s\n" "$BG$FG" "$LINE" "$RSET"
+        printf "%s%-${WIDEST}s%s\n" "${BCODES[$IDX]}${FCODES[$IDX]}" "$LINE" "$RSET"
         LN=$((LN + 1))
     done < "$1"
 }
