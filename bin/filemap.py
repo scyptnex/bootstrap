@@ -79,7 +79,7 @@ def outputTemplates(match, fields, delim):
     if match:
         fl = fields.copy()
         updateTemplates(match, fl)
-    print delim.join([ k + "=" + v for (k,v) in fl.items() if v])
+    print delim.join([ k + "=" + v.replace("\t","    ") for (k,v) in fl.items() if v])
 
 class Matchr:
 

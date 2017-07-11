@@ -12,29 +12,6 @@
 |                                                                         |
 |   > filereduce {--<command> <arg>}                                      |
 |   execute, in order, each of the <Command>s, with the argument <args>.  |
-|                                                                         |
-| Commands:                                                               |
-|                                                                         |
-|   --collect <f>:<op>                                                    |
-|     where records are equal for all fields except <f> reduce multiple   |
-|     records by applying <op> to the entries of <f>, valid <op>s are:    |
-|     avg,sum,max,min,cat                                                 |
-|                                                                         |
-|   --default <f>:<v>                                                     |
-|     if a record has no field named <f>, give it one with value <v>      |
-|                                                                         |
-|   --remove <f>                                                          |
-|     remove the field <f> from all records                               |
-|                                                                         |
-|   --rename <old>:<new>                                                  |
-|     change the name of the <old> field to <new>                         |
-|                                                                         |
-|   --table <x>:<y>:<val>:<name>:<delim>:<default>                        |
-|     construct a table from the records, coord (<x>,<y>) has value <val> |
-|     and the table itself is named <name> (i.e. that is the value at the |
-|     (0,0) position). The table will have <delim> as delimiter, and if   |
-|     there is no value for a coordinate, <default> is used. Both <delim> |
-|     and <default> can be blank                                          |
 +-------------------------------------------------------------------------+
 """
 
@@ -83,6 +60,12 @@ def mstr(f):
     return "%f" % f
 
 class Collect(Command):
+    """
+    --collect <f>:<op>
+    Where records are equal for all fields except <f> reduce multiple
+    Records by applying <op> to the entries of <f>, valid <op>s are:
+    avg,sum,max,min,ord
+    """
     def __init__(self):
         Command.__init__(self, "collect", 2)
     def execute_sub(self, pipe, args):
@@ -112,6 +95,10 @@ class Collect(Command):
             yield (k + "\t" + out).strip()
 
 class Default(Command):
+    """
+    --default <f>:<v>
+    if a record has no field named <f>, give it one with value <v>
+    """
     def __init__(self):
         Command.__init__(self, "default", 2)
     def execute_sub(self, pipe, args):
@@ -121,7 +108,45 @@ class Default(Command):
             else:
                 yield ln + "\t" + args[0] + "=" + args[1]
 
+class Exclude(Command):
+    """
+    --exclude <col>:<regex>
+    exclude rows where the value in field <col> CONTAINS <regex>
+    """
+    def __init__(self):
+        Command.__init__(self, "exclude", 2)
+    def execute_sub(self, pipe, args):
+        nm =args[0]
+        ptn = re.compile(args[1])
+        for ln in pipe:
+            mtchd=False
+            for c in ln.split("\t"):
+                if c.startswith(nm + "=") and ptn.search(c, pos=len(nm)+1):
+                    mtchd=True
+                    break
+            if not mtchd:
+                yield ln
+
+class Format(Command):
+    """
+    --format <col>:<form>
+    print the <form> formatted version of the data in <col>
+    """
+    def __init__(self):
+        Command.__init__(self, "format", 2)
+    def execute_sub(self, pipe, args):
+        fmt="%s="+args[1]
+        for ln in pipe:
+            yield "\t".join([
+                fmt%(args[0], float(c[len(args[0])+1:]))
+                if c.startswith(args[0] + "=") else c
+                for c in ln.split("\t")])
+
 class Remove(Command):
+    """
+    --remove <f>
+    remove the field <f> from all records
+    """
     def __init__(self):
         Command.__init__(self, "remove", 1)
     def execute_sub(self, pipe, args):
@@ -130,6 +155,10 @@ class Remove(Command):
             yield "\t".join([c for c in ln.split("\t") if not c.startswith(col_rm)])
 
 class Rename(Command):
+    """
+    --rename <old>:<new>
+    change the name of the <old> field to <new>
+    """
     def __init__(self):
         Command.__init__(self, "rename", 2)
     def execute_sub(self, pipe, args):
@@ -139,6 +168,10 @@ class Rename(Command):
             yield "\t".join([c.replace(col_from,col_to,1) if c.startswith(col_from + "=") else c for c in ln.split("\t")])
 
 class Scale(Command):
+    """
+    --scale <col>:<amt>
+    numerically scale the value in <col> by <amt>
+    """
     def __init__(self):
         Command.__init__(self, "scale", 2)
     def execute_sub(self, pipe, args):
@@ -147,38 +180,115 @@ class Scale(Command):
         for ln in pipe:
             yield "\t".join([col_name + "=" + str(float(c[c.index("=")+1:])*factor) if c.startswith(col_name + "=") else c for c in ln.split("\t")])
 
+class Sorting(Command):
+    """
+    --sort <column>
+    ensure that all rows containing a <column> field
+    appear first and in sorted order
+    """
+    def __init__(self):
+        Command.__init__(self, "sort", 1)
+    def execute_sub(self, pipe, args):
+        ptn=re.compile("(.*)" + args[0] + "=([^\t]*)(.*)")
+        containing=[]
+        not_containing=[]
+        is_numeric=True
+        for ln in pipe:
+            m = ptn.match(ln)
+            if m:
+                containing.append([m.group(2), m.group(1).strip() + "\t" + m.group(3).strip()])
+                try:
+                    float(m.group(2))
+                except ValueError:
+                    is_numeric=False
+            else:
+                not_containing.append(ln)
+        if is_numeric:
+            containing = [[float(c[0])] + c[1:] for c in containing]
+        for pr in sorted(containing, key=lambda pair:pair[0]):
+            yield (args[0] + "=" + str(pr[0]) + "\t" + pr[1].strip()).strip()
+        for ln in not_containing:
+            yield ln
+
+class Split(Command):
+    """
+    --split <old>:<regex>:<first>:<second>
+    split the field data (textually) into two separate fields based on
+    the given (bracketed) regex pattern
+    """
+    def __init__(self):
+        Command.__init__(self, "split", 4)
+    def execute_sub(self, pipe, args):
+        col_name = args[0]
+        regx = args[1]
+        n1 = args[2]
+        n2 = args[3]
+        p = re.compile(regx)
+        if p.groups != 2:
+            raise Exception("Split's regex must have two groups: e.g. ([a-z]*)([A-Z]*)")
+        for ln in pipe:
+            ret = []
+            for c in ln.split("\t"):
+                if c.startswith(col_name + "="):
+                    m = p.match(c[len(col_name)+1:])
+                    if m:
+                        if n1:
+                            ret.append(n1 + "=" + m.group(1))
+                        if n2:
+                            ret.append(n2 + "=" + m.group(2))
+                    else:
+                        raise Exception("%s can not match %s in %s" % (regx, c, ln))
+                else:
+                    ret.append(c)
+            yield "\t".join(ret)
+
+
 class Table(Command):
+    """
+    --table <x>:<y>:<val>:<name>:<delim>:<default>
+    construct a table from the records, coord (<x>,<y>) has value <val>
+    and the table itself is named <name> (i.e. that is the value at the
+    (0,0) position). The table will have <delim> as delimiter, and if
+    there is no value for a coordinate, <default> is used. Both <delim>
+    and <default> can be blank
+    """
     def __init__(self):
         Command.__init__(self, "table", 6)
     def execute_sub(self, pipe, args):
         if not args[4]:
             args[4] = "\t"
-        xs = set()
-        ys = set()
+        xs = []
+        ys = []
         ptns = [re.compile(".*" + p + "=([^\t]*)") for p in args[:3]]
         d={}
         for ln in pipe:
             mtch = [m.group(1) if m else "" for m in [p.match(ln) for p in ptns]]
             if not mtch[0] or not mtch[1]:
                 raise Exception("trying to create a table with incomplete x and y columns")
-            xs.add(mtch[0])
-            ys.add(mtch[1])
+            if not mtch[0] in xs:
+                xs.append(mtch[0])
+            if not mtch[1] in ys:
+                ys.append(mtch[1])
             d[(mtch[0], mtch[1])] = mtch[2]
-        ys = [y for y in ys]
-        ys.sort()
-        xs = [x for x in xs]
-        xs.sort()
         yield args[4].join([args[3]] + xs)
         for y in ys:
             yield args[4].join([y] + [ s if s else args[5] for s in[d[(x,y)] if (x,y) in d.keys() else None for x in xs]])
+
+def clean(stri):
+    for i, ln in enumerate(stri.strip().split("\n")):
+        print("%s%s"%("  " if i==0 else "    ", ln.strip()))
 
 def filereduce():
     # register the commands
     Collect()
     Default()
+    Exclude()
+    Format()
     Remove()
     Rename()
     Scale()
+    Sorting()
+    Split()
     Table()
     # run the pipeline
     pipeline=inputer(sys.stdin)
@@ -191,6 +301,11 @@ def filereduce():
     for o, a in opts:
         if o in ("-h", "--help"):
             print __doc__
+            print("Commands:")
+            for i,c in enumerate(Command.registered):
+                if i!=0:
+                    print
+                clean(c.__doc__)
             sys.exit(0)
         elif o in ["--" + c.name for c in Command.registered]:
             for c in Command.registered:
