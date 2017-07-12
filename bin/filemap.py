@@ -43,6 +43,7 @@ import sys
 import getopt
 import re
 import glob
+import os
 
 def getFields(start, allTemplates):
     p = re.compile("__([^_]*)__")
@@ -110,7 +111,8 @@ class Matchr:
         for fi in glob.glob(pathGlob):
             thisDict=fields.copy()
             updateTemplates(pat.match(fi), thisDict)
-            self.grepFile(fi, thisDict, cpat)
+            if os.path.isfile(fi):
+                self.grepFile(fi, thisDict, cpat)
 
 def filemap():
     forced_fields = {}

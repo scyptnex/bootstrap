@@ -94,6 +94,34 @@ class Collect(Command):
                 out=""
             yield (k + "\t" + out).strip()
 
+class Cat(Command):
+    """
+    --cat <a>:<b>:<c>
+    Creates a new field <c> using the concattenated items in <a> and <b>
+    If either <a> or <b> is not present, the record is uncahnged
+    """
+    def __init__(self):
+        Command.__init__(self, "cat", 3)
+    def catter(self, l, r, n, arr):
+        lp = None
+        rp = None
+        for f in arr:
+            if not lp and  f.startswith(l + "="):
+                lp = f
+            elif not rp and f.startswith(r + "="):
+                rp = f
+            else:
+                yield f
+        if lp and rp:
+            yield n + "=" + lp[len(l) + 1:] + rp[len(r) + 1:]
+        elif lp:
+            yield lp
+        elif rp:
+            yield rp
+    def execute_sub(self, pipe, args):
+        for ln in pipe:
+            yield "\t".join(self.catter(args[0], args[1], args[2], ln.split("\t")))
+
 class Default(Command):
     """
     --default <f>:<v>
@@ -281,6 +309,7 @@ def clean(stri):
 def filereduce():
     # register the commands
     Collect()
+    Cat()
     Default()
     Exclude()
     Format()
