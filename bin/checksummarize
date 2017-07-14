@@ -52,9 +52,9 @@ FILES=`find "." -type f`
 echo "#! /usr/bin/env bash" > CHECKSUM
 echo "trap \"popd > /dev/null\" EXIT" >> CHECKSUM
 echo "pushd \$(dirname \$0) > /dev/null" >> CHECKSUM
-echo "SUM=\"" >> CHECKSUM
+echo "SUM='" >> CHECKSUM
 echo "$FILES" | sed -e 's/^/"/' -e 's/$/"/' | xargs sha256sum | tee -a CHECKSUM
-echo "\"" >> CHECKSUM
+echo "'" >> CHECKSUM
 echo "echo \"\$SUM\" | grep \"^[a-fA-F0-9]\" | sha256sum -c | grep -v \"OK$\"" >> CHECKSUM
 echo "if [ \"\$?\" == \"0\" ]; then" >> CHECKSUM
 echo "    exit 1" >> CHECKSUM
