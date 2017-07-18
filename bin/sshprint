@@ -64,7 +64,6 @@ shift $(($OPTIND -1))
 
 if [ $# == 1 ]; then
     FILE="$1"
-    echo "   File: $FILE"
     if [ -n "$RANGE" ] ; then
         FTMP=`mktemp --tmpdir XXXXXX.pdf`
         trap "rm $FTMP" EXIT
@@ -72,16 +71,17 @@ if [ $# == 1 ]; then
         FILE=$FTMP
     fi
     [ -n "$RANGE" ] || RANGE="all"
+    FNAME=`basename "$1" | tr ' ' '_'` # use $1 here so we get the right name even with a temp
+    TMP=`ssh $SERVER mktemp --tmpdir ${FNAME%.pdf}.XXX.pdf 2>/dev/null`
+    echo "   File: $FILE"
     echo "  Pages: $RANGE"
     echo " Copies: $COPIES"
     echo " Server: $SERVER"
     echo "Printer: $PRINTER"
-    
-    FNAME=`basename "$1" | tr ' ' '_'` # use $1 here so we get the right name even with a temp
-    TMP=`ssh $SERVER mktemp --tmpdir ${FNAME%.pdf}.XXX.pdf`
     echo " Remote: $TMP"
+    exit
     scp "$FILE" "$SERVER:$TMP"
-    ssh "$SERVER" lpr -V -P "$PRINTER" -# "$COPIES" "$TMP"
-    ssh "$SERVER" rm "$TMP"
+    ssh "$SERVER" lpr -P "$PRINTER" -# "$COPIES" "$TMP" 2>/dev/null
+    ssh "$SERVER" rm "$TMP" 2>/dev/null
 fi
-ssh $SERVER lpq -V -P "$PRINTER"
+ssh $SERVER lpq -P "$PRINTER" 2>/dev/null
