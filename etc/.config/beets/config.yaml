@@ -1,0 +1,6 @@
+directory: ~/Music
+
+import_art: yes
+
+import:
+    move: yes
