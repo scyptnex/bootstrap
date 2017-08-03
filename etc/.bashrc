@@ -47,6 +47,7 @@ alias largs='xargs -L1 -d"\n"'
 alias latexmk="latexmk -pdf"
 alias opn="xdg-open"
 alias panda="pandoc -f markdown -o PANDA.pdf"
+alias psu="ps -u $(whoami)"
 alias shutup="sudo apt update &&
               sudo apt -y upgrade &&
               sudo apt -y dist-upgrade &&
