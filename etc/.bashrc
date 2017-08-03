@@ -43,6 +43,7 @@ alias colour='for i in {0..255};do printf "%s%3d$(tput sgr0) " "$(tput setab $i)
 alias dat="date +%F-%H:%M"
 alias dus='paste <(ls -A | xargs -l1 -d"\n" du -sh | cut -f 1) <(ls -AF) | sort -h'
 alias gpgrecipients="gpg --list-only --no-default-keyring --secret-keyring /dev/null"
+alias histkill='for I in $(seq $(history | grep "exit$" | tail -n 1 | cut -d" " -f2) $(history | tail -n 1 | cut -d" " -f2) | tac); do history -d $((I+1)); done'
 alias largs='xargs -L1 -d"\n"'
 alias latexmk="latexmk -pdf"
 alias opn="xdg-open"
