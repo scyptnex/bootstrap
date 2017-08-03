@@ -56,6 +56,8 @@ alias shutup="sudo apt update &&
               echo Shutting down in 10 seconds &&
               sleep 10 &&
               poweroff"
+alias yta='youtube-dl -f "bestaudio[ext=mp3]/bestaudio[ext=m4a]" -o "~/YOUTUBE/%(uploader)s/%(title)s[%(abr)skbps].%(ext)s"'
+alias ytv='youtube-dl -f "best[ext=mp4,height<=720]" -o "~/YOUTUBE/%(uploader)s/%(title)s[%(resolution)s].%(ext)s"'
 
 #=======================#
 # Environment Variables #
