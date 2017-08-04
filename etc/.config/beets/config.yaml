@@ -1,6 +1,23 @@
 directory: ~/Music
 
-import_art: yes
+plugins: fetchart embedart
+
+#===========#
+# Album Art #
+#===========#
+
+# Basically i want the album art in a separate cover.jpg file
+# i only have this plugin so that i can call clearart :P
+embedart:
+    auto: no
+    ifempty: yes
+    remove_art_file: no
+
+#=================#
+# Importing Files #
+#=================#
 
 import:
     move: yes
+import_art: yes
+

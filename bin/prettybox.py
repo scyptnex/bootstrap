@@ -143,6 +143,7 @@ def prettybox(cmd_args):
             "java":"doc",
             "python":"shell",
             "sh":"shell",
+            "yaml":"shell",
             }
     pieces={directions[i] : prefabs["box"][i] for i in xrange(0, len(directions))}
     try:
