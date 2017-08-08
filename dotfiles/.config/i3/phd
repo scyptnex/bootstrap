@@ -1,0 +1,49 @@
+#! /usr/bin/env bash
+
+#=========================================================================#
+#                                   phd                                   #
+#                                                                         #
+# Author: nic                                                             #
+# Date: 2017-Aug-08                                                       #
+#                                                                         #
+# Options:                                                                #
+#   -h           Display this help message                                #
+#=========================================================================#
+
+set -e # error on non-zero exit
+set -u # undefined variables are an error
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+function errxit(){
+    [ $# -gt 0 ] && echo "Error: $@" >&2
+    echo "Re-run with -h for help" >&2
+    exit 1
+}
+
+function get(){
+    wc -w ~/uni/tex/phd/*.tex | tail -n 1 | sed -e 's/^ *//' -e 's/ .*$//'
+}
+
+while getopts "h" opt; do
+    case $opt in
+        h)
+            usage
+            exit 0
+            ;;
+        \?)
+            errxit Unrecognised command
+            ;;
+    esac
+done
+shift $(($OPTIND -1))
+
+if [ ! -f /tmp/PHD_WC ]; then
+    get > /tmp/PHD_WC
+fi
+
+AMT=$(cat /tmp/PHD_WC)
+CUR=$(get)
+echo $AMT : $CUR
