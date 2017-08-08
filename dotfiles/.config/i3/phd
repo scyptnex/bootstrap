@@ -13,6 +13,9 @@
 set -e # error on non-zero exit
 set -u # undefined variables are an error
 
+WC_F="/tmp/PHD_WC"
+CG_F="/tmp/PHD_CONGRATS"
+
 function usage(){
     grep "^#.*#$" $0
 }
@@ -40,10 +43,20 @@ while getopts "h" opt; do
 done
 shift $(($OPTIND -1))
 
-if [ ! -f /tmp/PHD_WC ]; then
-    get > /tmp/PHD_WC
+if [ -f "$WC_F" ] && [ $(date -r "$WC_F" +%d) != $(date +%d) ]; then
+    rm -f "$WC_F" "$CG_F"
 fi
 
-AMT=$(cat /tmp/PHD_WC)
+if [ ! -f "$WC_F" ]; then
+    get > "$WC_F"
+fi
+
+AMT=$(cat "$WC_F")
 CUR=$(get)
-echo $AMT : $CUR
+DIF=$(( $CUR - $AMT ))
+echo $AMT +$DIF
+
+if [ $DIF -gt 1000 ] && [ ! -f "$CG_F" ]; then
+    echo "you have been congratulated" > "$CG_F"
+    notify-send "Congrats" "You just passed 1000 words"
+fi
