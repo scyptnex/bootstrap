@@ -4,6 +4,8 @@ hg
 
 [latex]
 texlive-base
+texlive-extra
+texlive-science
 
 [secure]
 ecryptfs
@@ -16,3 +18,6 @@ cmake
 python3-dev
 python-dev
 
+[misc]
+pv
+myrepos
