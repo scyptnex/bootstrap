@@ -1,0 +1,87 @@
+#! /usr/bin/env bash
+
+#=========================================================================#
+#                                   pws                                   #
+#                                                                         #
+# Author: nic                                                             #
+# Date: 2017-Aug-25                                                       #
+#                                                                         #
+# A wrapper for "pass", the password store, which uses dmenu or rofi to   #
+# select passwords, optionally forwarding them to xclip or xdotool        #
+#                                                                         #
+# Essentially a more fleshed-out version of zx2c4's "passmenu"            #
+#                                                                         #
+# Options:                                                                #
+#   -e           Edit the password (instead of using it)                  #
+#   -h           Display this help message                                #
+#=========================================================================#
+
+set -e # error on non-zero exit
+set -u # undefined variables are an error
+
+CLIP_TIME=15
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+function errxit(){
+    ([ $# -gt 0 ] && echo "Error: $@") | xargs -0 notify-send "pws"
+    exit 1
+}
+
+function chooser(){
+    if hash rofi 2>/dev/null; then
+        rofi -dmenu
+    elif hash dmenu 2>/dev/null; then
+        dmenu
+    else
+        errxit "Neither dmenu nor rofi is installed"
+    fi
+}
+
+function user(){
+    if hash xdotool 2>/dev/null; then
+        pass show "$1" \
+            | { read -r pass; printf %s "$pass"; } \
+            | xdotool type --clearmodifiers --file -
+    else
+        pass show "$1" | head -n 1 | tr -d "\n" | xclip
+        notify-send "pws" "$1 on clipboard for $CLIP_TIME seconds"
+        sleep $CLIP_TIME
+        echo -n "" | xclip
+        notify-send "pws" "$1 removed from clipboard"
+    fi
+}
+
+EDIT="f"
+while getopts "he" opt; do
+    case $opt in
+        e)
+            EDIT="t"
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        \?)
+            errxit Unrecognised command
+            ;;
+    esac
+done
+shift $(($OPTIND -1))
+
+# blatantly lifted from zx2c4's "passmenu"
+PREFIX=${PASSWORD_STORE_DIR-~/.password-store}
+PASSES=( `find "$PREFIX" -type f -name "*.gpg"` )
+PASSES=( ${PASSES[@]#"$PREFIX"/} )
+PASSES=( ${PASSES[@]%.gpg} )
+CHOSE=`printf "%s\n" "${PASSES[@]}" | sort | chooser`
+if [ "$EDIT" == "t" ]; then
+    i3-sensible-terminal -e pass edit "$CHOSE"
+elif [[ ${PASSES[@]} == *"$CHOSE"* ]]; then
+    user "$CHOSE"
+else
+    pass show "$CHOSE" 2>&1 | xargs -0 notify-send "pws"
+fi
+

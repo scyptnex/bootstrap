@@ -191,6 +191,9 @@ set $vol ~/bootstrap/bin/volumer -v
 bindsym XF86AudioRaiseVolume exec --no-startup-id $vol up
 bindsym XF86AudioLowerVolume exec --no-startup-id $vol down
 bindsym XF86AudioMute exec --no-startup-id $vol mute
+# passwords
+bindsym $mod+p exec ~/bootstrap/bin/pws
+bindsym $mod+Shift+p exec ~/bootstrap/bin/pws -e
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
