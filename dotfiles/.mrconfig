@@ -16,6 +16,9 @@ checkout = git clone 'git@bitbucket.org:scyptnex/cauliflower.git' 'cauliflower'
 [uni/tex]
 checkout = git clone 'git@bitbucket.org:scyptnex/tex.git' 'tex'
 
+[.password-store]
+checkout = git clone 'nhol8058@cpu1.it.usyd.edu.au:repos/passwords.git'
+
 [.vim/bundle/Vundle.vim]
 checkout = git clone 'https://github.com/gmarik/Vundle.vim.git' 'Vundle.vim'
 skip = [ "$1" != update ]
