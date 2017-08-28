@@ -32,7 +32,7 @@ function errxit(){
 
 function chooser(){
     if hash rofi 2>/dev/null; then
-        rofi -dmenu
+        rofi -dmenu -p "pass:" -mesg "<b><u>$1</u></b> mode" -levenshtein-sort
     elif hash dmenu 2>/dev/null; then
         dmenu
     else
@@ -41,24 +41,25 @@ function chooser(){
 }
 
 function user(){
-    if hash xdotool 2>/dev/null; then
-        pass show "$1" \
-            | { read -r pass; printf %s "$pass"; } \
-            | xdotool type --clearmodifiers --file -
-    else
-        pass show "$1" | head -n 1 | tr -d "\n" | xclip
-        notify-send "pws" "$1 on clipboard for $CLIP_TIME seconds"
-        sleep $CLIP_TIME
-        echo -n "" | xclip
-        notify-send "pws" "$1 removed from clipboard"
-    fi
+    #TODO xdotool
+    # if hash xdotool 2>/dev/null; then
+    #     pass show "$1" \
+    #         | { read -r pass; printf %s "$pass"; } \
+    #         | xdotool type --clearmodifiers --file -
+    # else
+    # fi
+    pass show "$1" | head -n 1 | tr -d "\n" | xclip
+    notify-send "pws" "$1 on clipboard for $CLIP_TIME seconds"
+    sleep $CLIP_TIME
+    echo -n "" | xclip
+    notify-send "pws" "$1 removed from clipboard"
 }
 
-EDIT="f"
+MODE="selection"
 while getopts "he" opt; do
     case $opt in
         e)
-            EDIT="t"
+            MODE="editing"
             ;;
         h)
             usage
@@ -76,8 +77,8 @@ PREFIX=${PASSWORD_STORE_DIR-~/.password-store}
 PASSES=( `find "$PREFIX" -type f -name "*.gpg"` )
 PASSES=( ${PASSES[@]#"$PREFIX"/} )
 PASSES=( ${PASSES[@]%.gpg} )
-CHOSE=`printf "%s\n" "${PASSES[@]}" | sort | chooser`
-if [ "$EDIT" == "t" ]; then
+CHOSE=`printf "%s\n" "${PASSES[@]}" | sort | chooser "$MODE"`
+if [ "$MODE" == "editing" ]; then
     i3-sensible-terminal -e pass edit "$CHOSE"
 elif [[ ${PASSES[@]} == *"$CHOSE"* ]]; then
     user "$CHOSE"
