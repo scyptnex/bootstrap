@@ -17,7 +17,7 @@ checkout = git clone 'git@bitbucket.org:scyptnex/cauliflower.git' 'cauliflower'
 checkout = git clone 'git@bitbucket.org:scyptnex/tex.git' 'tex'
 
 [.password-store]
-checkout = git clone 'nhol8058@cpu1.it.usyd.edu.au:repos/passwords.git'
+checkout = git clone 'nhol8058@cpu1.it.usyd.edu.au:repos/passwords.git' '.password-store'
 
 [.vim/bundle/Vundle.vim]
 checkout = git clone 'https://github.com/gmarik/Vundle.vim.git' 'Vundle.vim'
