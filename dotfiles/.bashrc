@@ -72,6 +72,9 @@ if [ -d $HOME/soft/go ]; then
     export PATH="$PATH:$GOROOT/bin"
     export GOPATH="$HOME/project/go"
 fi
+if [ id $HOME/soft/usr ]; then
+    export PATH="$PATH:$HOME/soft/usr/bin"
+fi
 export GRADLE_OPTS="-Dorg.gradle.daemon=true"
 
 # TODO fix this
