@@ -67,6 +67,9 @@ alias ytv='youtube-dl -f "best[ext=mp4,height<=720]" -o "~/YOUTUBE/%(uploader)s/
 if [ -d $HOME/bootstrap/bin ]; then
     export PATH="$PATH:$HOME/bootstrap/bin"
 fi
+if [ -d $HOME/project/bootstrap/bin ]; then
+    export PATH="$PATH:$HOME/project/bootstrap/bin"
+fi
 if [ -d $HOME/soft/go ]; then
     export GOROOT="$HOME/soft/go"
     export PATH="$PATH:$GOROOT/bin"
