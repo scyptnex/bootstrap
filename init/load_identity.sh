@@ -25,6 +25,17 @@ head -n $LN $ALL | tail -n +2 > ~/.ssh/id_rsa
 tail -n +$((LN + 1)) $ALL | gpg --import
 
 # automatically imports trust level ultimate for the bootstrap key
-KEY=`tail -n +$((LN + 1)) "$ALL" | gpg --list-packets 2>/dev/null | grep "^:user" | sed -e 's/^[^"]*"//' -e 's/"$//' | sort -u`
-gpg --list-key --fingerprint "$KEY" | grep fingerprint | tail -1 | tr -d '[:space:]' | sed -e 's/^.*=//' -e 's/$/:6:\n/' | gpg --import-ownertrust 2>&1
+#KEY=`tail -n +$((LN + 1)) "$ALL" | gpg --list-packets 2>/dev/null | grep "^:user" | sed -e 's/^[^"]*"//' -e 's/"$//' | sort -u`
+#gpg --list-key --fingerprint "$KEY" | grep fingerprint | tail -1 | tr -d '[:space:]' | sed -e 's/^.*=//' -e 's/$/:6:\n/' | gpg --import-ownertrust 2>&1
 
+cat << EOF
+
+You must now setup the trust for this key:
+
+gpg --edit-key bootstrap
+> trust
+> 5
+> y
+> quit
+
+EOF

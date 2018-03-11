@@ -111,7 +111,7 @@ case "$(hostname)" in
     ghesseraan|Makraan)
         PCOL=2
         ;;
-    Therauvra)
+    Therauvra|annaktsourrin)
         PCOL=7
         ;;
     *)
