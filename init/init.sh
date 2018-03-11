@@ -18,4 +18,5 @@ DIR=$(readlink -f `dirname $0`)
 $DIR/load_identity.sh $DIR/../identity/2016-06-16.asc
 $DIR/fix_remote.sh
 $DIR/configure.sh
+$DIR/permissions.sh
 
