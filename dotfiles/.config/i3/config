@@ -218,9 +218,9 @@ bindsym $mod+Shift+x mode "$mode_sys"
 # Startup #
 #=========#
 
-exec xdg-open http://mail.google.com
-exec xdg-open http://outlook.office365.com
-exec thunderbird
+# exec xdg-open http://mail.google.com
+# exec xdg-open http://outlook.office365.com
+# exec thunderbird
 exec ~/.config/i3/gnome-keyring-starter.sh
-exec --no-startup-id i3-msg "workspace $ws3; exec i3-sensible-terminal"
-#exec_always feh --bg-scale /path/to/picture
+# exec --no-startup-id i3-msg "workspace $ws3; exec i3-sensible-terminal"
+exec_always feh --bg-scale ~/.config/i3/bg.png
