@@ -165,4 +165,3 @@ shopt -s checkwinsize # check the terminal windo size after commands
 
 # added by travis gem
 [ -f /home/nic/.travis/travis.sh ] && source /home/nic/.travis/travis.sh
-
