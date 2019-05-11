@@ -38,7 +38,15 @@ shift $(($OPTIND -1))
 
 sudo service transmission-daemon stop
 
+echo "[Before] Your IP is:"
+curl https://ipinfo.io/ip
+echo
+
 expressvpn connect || echo "already connected"
 
 sudo service transmission-daemon start
+
+echo "[After] Your IP is:"
+curl https://ipinfo.io/ip
+echo
 

@@ -79,6 +79,7 @@ if [ -d $HOME/soft/usr ]; then
     export PATH="$PATH:$HOME/soft/usr/bin"
 fi
 export GRADLE_OPTS="-Dorg.gradle.daemon=true"
+export EDITOR=vim
 
 # TODO fix this
 #- if which gnome-keyring-daemon >/dev/null 2>/dev/null ; then
