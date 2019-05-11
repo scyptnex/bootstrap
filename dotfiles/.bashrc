@@ -115,6 +115,9 @@ case "$(hostname)" in
     Therauvra|annaktsourrin)
         PCOL=7
         ;;
+    Milotic)
+        PCOL=38
+        ;;
     *)
         PCOL=0
         ;;
@@ -137,6 +140,7 @@ export SSH_C0="nhol8058@cpu0.it.usyd.edu.au"
 export SSH_C1="nhol8058@cpu1.it.usyd.edu.au"
 export SSH_C2="nhol8058@cpu2.it.usyd.edu.au"
 export SSH_BS="nic@plang8.cs.usyd.edu.au"
+export SSH_PI="nic@192.168.1.198"
 export SSH_UNI="nic@ghesseran.it.usyd.edu.au"
 
 #===========#
