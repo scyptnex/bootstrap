@@ -118,6 +118,9 @@ case "$(hostname)" in
     Milotic)
         PCOL=38
         ;;
+    penguin)
+        PCOL=172
+        ;;
     *)
         PCOL=0
         ;;
