@@ -81,6 +81,10 @@ fi
 export GRADLE_OPTS="-Dorg.gradle.daemon=true"
 export EDITOR=vim
 
+if [ -e "$XDG_RUNTIME_DIR/ssh-agent.socket" ]; then
+    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+fi
+
 # TODO fix this
 #- if which gnome-keyring-daemon >/dev/null 2>/dev/null ; then
 #-     # Starting the gnome keyring
