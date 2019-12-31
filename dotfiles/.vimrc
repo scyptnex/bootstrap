@@ -8,6 +8,8 @@ set expandtab
 set ai " Auto Indent
 set si " Smart Indent
 
+let g:rustfmt_autosave = 1
+
 "===="
 " UI "
 "===="
@@ -30,7 +32,7 @@ highlight nonText ctermbg=NONE
 set cmdheight=2
 
 "line numbers
-set number
+set number relativenumber
 
 "backspace
 set backspace=eol,start,indent
@@ -70,19 +72,23 @@ command! -n=? Comment :call s:PrettyBox('<args>')
 "========"
 " VUNDLE "
 "========"
-
 set nocompatible
 filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
-Plugin 'vtreeexplorer'
-Plugin 'Valloric/YouCompleteMe'
 Plugin 'rust-lang/rust.vim'
 Plugin 'souffle-lang/souffle.vim'
+Bundle 'takac/vim-hardtime'
+Plugin 'Valloric/YouCompleteMe'
+Plugin 'vtreeexplorer'
 call vundle#end() " All of your Plugins must be added before this line
 filetype plugin indent on
 "filetype plugin on
+
+"==============="
+" YOUCOMPLETEME "
+"==============="
 "let g:ycm_filetype_whitelist = { 'cpp':1, 'c':1 }
 let g:ycm_filetype_blacklist = {'tex':1}
 let g:ycm_enable_diagnostic_signs = 0
@@ -92,14 +98,22 @@ let g:ycm_extra_conf_globlist = ['./*','../*','../../*','!*']
 "==============="
 " VTREEEXPLORER "
 "==============="
-
 let treeExplVertical=1
 let treeExplWinSize=40
+
+"=========="
+" HARDTIME "
+"=========="
+let g:hardtime_default_on = 1
+let g:hardtime_allow_different_key=1
+noremap <Up>    <esc>
+noremap <Down>  <esc>
+noremap <Left>  <esc>
+noremap <Right> <esc>
 
 "========="
 " KEYMAPS "
 "========="
-
 let mapleader = ","
 nnoremap <leader>w :w!<cr>
 nnoremap <leader>q :q<cr>
