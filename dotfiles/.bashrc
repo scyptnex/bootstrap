@@ -58,8 +58,9 @@ alias shutup="sudo apt update &&
               sleep 10 &&
               poweroff"
 alias synchro='stow -Rv --dir=${HOME}/project/bootstrap/dotfiles/ --target=${HOME} --no-folding .'
-alias yta='youtube-dl -f "bestaudio[ext=mp3]/bestaudio[ext=m4a]" -o "~/YOUTUBE/%(uploader)s/%(title)s[%(abr)skbps].%(ext)s"'
-alias ytv='youtube-dl -f "best[ext=mp4,height<=720]" -o "~/YOUTUBE/%(uploader)s/%(title)s[%(resolution)s].%(ext)s"'
+alias yta='ytd -p audio'
+alias ytd='PYTHONPATH=~/project/ytd/ python3 -m ytd'
+alias ytv='ytd -p video'
 
 #=======================#
 # Environment Variables #
