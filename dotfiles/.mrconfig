@@ -1,5 +1,6 @@
 [DEFAULT]
 git_lg = git lg -10
+skip = lazy
 
 [project/bootstrap]
 checkout = git clone 'git@github.com:scyptnex/bootstrap.git' 'bootstrap'
