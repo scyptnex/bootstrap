@@ -38,11 +38,13 @@ shift $(($OPTIND -1))
 
 sudo service transmission-daemon stop
 
+expressvpn disconnect || echo "already disconnected"
+
 echo "[Before] Your IP is:"
-curl https://ipinfo.io/ip
+curl -m 5 https://ipinfo.io/ip || echo "no internet for you"
 echo
 
-expressvpn connect || echo "already connected"
+expressvpn connect
 
 sudo service transmission-daemon start
 
