@@ -36,19 +36,14 @@ while getopts "h" opt; do
 done
 shift $(($OPTIND -1))
 
-sudo service transmission-daemon stop
-
-expressvpn disconnect || echo "already disconnected"
-
-echo "[Before] Your IP is:"
-curl -m 5 https://ipinfo.io/ip || echo "no internet for you"
+sudo echo "[Before] Your IP is:"
+curl https://ipinfo.io/ip
 echo
 
-expressvpn connect
+expressvpn connect || expressvpn status
 
 sudo service transmission-daemon start
 
 echo "[After] Your IP is:"
 curl https://ipinfo.io/ip
 echo
-
