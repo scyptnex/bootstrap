@@ -81,7 +81,7 @@ Plugin 'rust-lang/rust.vim'
 Plugin 'souffle-lang/souffle.vim'
 Bundle 'takac/vim-hardtime'
 Plugin 'Valloric/YouCompleteMe'
-Plugin 'vtreeexplorer'
+" Plugin 'vtreeexplorer'
 call vundle#end() " All of your Plugins must be added before this line
 filetype plugin indent on
 "filetype plugin on
@@ -94,12 +94,6 @@ let g:ycm_filetype_blacklist = {'tex':1}
 let g:ycm_enable_diagnostic_signs = 0
 let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_extra_conf_globlist = ['./*','../*','../../*','!*']
-
-"==============="
-" VTREEEXPLORER "
-"==============="
-let treeExplVertical=1
-let treeExplWinSize=40
 
 "=========="
 " HARDTIME "
@@ -120,10 +114,10 @@ nnoremap <leader>q :q<cr>
 nnoremap <leader>f :set filetype?<cr>
 nnoremap <leader>p gqip
 
+nnoremap <leader>d :Ex<cr>
+nnoremap <leader>h :split<cr>
+nnoremap <leader>v :vsplit<cr>
+
 "ycm completion
 nnoremap <leader>g :YcmCompleter GoTo<CR>
-nnoremap <leader>d :YcmDiags<CR>
-"vtree
-nnoremap <leader>v :VSTreeExplore<CR>
-
 
