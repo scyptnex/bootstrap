@@ -113,7 +113,7 @@ case "$(hostname)" in
     cpu*)
         PCOL=5
         ;;
-    plang*)
+    u)
         PCOL=6
         ;;
     ghesseraan|Makraan)
