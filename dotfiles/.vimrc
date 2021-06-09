@@ -79,7 +79,7 @@ call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
 Plugin 'rust-lang/rust.vim'
 Plugin 'souffle-lang/souffle.vim'
-Bundle 'takac/vim-hardtime'
+" Bundle 'takac/vim-hardtime'
 Plugin 'Valloric/YouCompleteMe'
 " Plugin 'vtreeexplorer'
 call vundle#end() " All of your Plugins must be added before this line
@@ -98,12 +98,12 @@ let g:ycm_extra_conf_globlist = ['./*','../*','../../*','!*']
 "=========="
 " HARDTIME "
 "=========="
-let g:hardtime_default_on = 1
-let g:hardtime_allow_different_key=1
-noremap <Up>    <esc>
-noremap <Down>  <esc>
-noremap <Left>  <esc>
-noremap <Right> <esc>
+"let g:hardtime_default_on = 1
+"let g:hardtime_allow_different_key=1
+"noremap <Up>    <esc>
+"noremap <Down>  <esc>
+"noremap <Left>  <esc>
+"noremap <Right> <esc>
 
 "========="
 " KEYMAPS "
