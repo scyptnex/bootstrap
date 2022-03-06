@@ -37,7 +37,7 @@ done
 shift $(($OPTIND -1))
 
 sudo echo "[Before] Your IP is:"
-curl https://ipinfo.io/ip
+curl https://ipinfo.io/ip || echo "Looks like you have no internet"
 echo
 
 expressvpn connect || expressvpn status
