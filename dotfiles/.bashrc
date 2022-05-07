@@ -172,4 +172,5 @@ shopt -s checkwinsize # check the terminal windo size after commands
 [ -f /home/nic/.travis/travis.sh ] && source /home/nic/.travis/travis.sh
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-. "$HOME/.cargo/env"
+
+[ -f ~/.cargo/env ] && source "$HOME/.cargo/env"
