@@ -46,6 +46,7 @@ alias gpgrecipients="gpg --list-only --no-default-keyring --secret-keyring /dev/
 alias histkill='for I in $(seq $(history | grep "exit$" | tail -n 1 | cut -d" " -f2) $(history | tail -n 1 | cut -d" " -f2) | tac); do history -d $((I+1)); done'
 alias largs='xargs -L1 -d"\n"'
 alias latexmk="latexmk -pdf"
+alias lucifer="PYTHONPATH=~/project/lucifer/ python3 -m lucifer"
 alias opn="xdg-open"
 alias panda="pandoc -f markdown -o PANDA.pdf"
 alias psu="ps -u $(whoami)"
@@ -171,3 +172,4 @@ shopt -s checkwinsize # check the terminal windo size after commands
 [ -f /home/nic/.travis/travis.sh ] && source /home/nic/.travis/travis.sh
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+. "$HOME/.cargo/env"
