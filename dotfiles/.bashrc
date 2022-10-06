@@ -82,6 +82,9 @@ fi
 if [ -d $HOME/soft/usr ]; then
     export PATH="$PATH:$HOME/soft/usr/bin"
 fi
+if [ -d $HOME/.local/bin ]; then
+    export PATH="$PATH:$HOME/.local/bin"
+fi
 export GRADLE_OPTS="-Dorg.gradle.daemon=true"
 export EDITOR=vim
 

@@ -77,6 +77,7 @@ filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
+Plugin 'psf/black'
 Plugin 'rust-lang/rust.vim'
 Plugin 'souffle-lang/souffle.vim'
 " Bundle 'takac/vim-hardtime'
