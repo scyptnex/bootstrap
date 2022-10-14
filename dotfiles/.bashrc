@@ -60,9 +60,6 @@ alias shutup="sudo apt update &&
               poweroff"
 alias synchro='stow -Rv --dir=${HOME}/project/bootstrap/dotfiles/ --target=${HOME} --no-folding .'
 alias tux='tmux new-session -c ~ -A -D -s default'
-alias yta='ytd -p audio'
-alias ytd='PYTHONPATH=~/project/ytd/ python3 -m ytd'
-alias ytv='ytd -p video'
 
 #=======================#
 # Environment Variables #
@@ -73,6 +70,9 @@ if [ -d $HOME/bootstrap/bin ]; then
 fi
 if [ -d $HOME/project/bootstrap/bin ]; then
     export PATH="$PATH:$HOME/project/bootstrap/bin"
+fi
+if [ -d $HOME/project/ytd/bin ]; then
+    export PATH="$PATH:$HOME/project/ytd/bin"
 fi
 if [ -d $HOME/soft/go ]; then
     export GOROOT="$HOME/soft/go"
