@@ -1,2 +1,2 @@
 #! /usr/bin/env sh
-exec python2 $(dirname `readlink -f $0`)/mkfi.py "$@"
+exec python3 $(dirname `readlink -f $0`)/mkfi.py "$@"

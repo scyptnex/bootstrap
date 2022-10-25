@@ -188,7 +188,7 @@ Lorem ipsum dolor set amet.
 }
 
 def errxit(msg, code):
-    print msg
+    print(msg)
     sys.exit(code)
 
 def writeFile(dirPath, fileName, pretty_args, author, extension):
@@ -202,7 +202,7 @@ def writeFile(dirPath, fileName, pretty_args, author, extension):
     if dotIndex != -1:
         fType = fileName[dotIndex+1:]
         humanName = fileName[:dotIndex]
-    elif __templates__.has_key(extension + "_pseudo"):
+    elif extension + "_pseudo" in __templates__:
         # catch pseudo executables early, and make their execution template
         # in this case a known file type was given that did not have an extension
         writeFile(dirPath, fileName + "." + extension, pretty_args, author, "") # write the real mkfi
@@ -212,12 +212,12 @@ def writeFile(dirPath, fileName, pretty_args, author, extension):
         fType = "h"
     elif fType in ("cc", "cpp"):
         fType = "c"
-    if not __templates__.has_key(fType):
+    if not fType in __templates__:
         fType = "sh"
     if len(extension) != 0:
         fType = extension
-        if not __templates__.has_key(extension):
-            print "Unrecognised extension", extension
+        if not extension in __templates__:
+            print("Unrecognised extension", extension)
             sys.exit(1)
     names = ''.join([" %s" % x if x.isupper() else x for x in humanName.replace("-"," ").replace("_"," ")]).split()
 
@@ -243,7 +243,7 @@ def main():
         sys_args = sys_args[:idx]
     try:
         opts, args = getopt.getopt(sys_args, "a:hx:", ["help"])
-    except getopt.error, msg:
+    except getopt.error as msg:
         errxit(msg + "\nfor help use --help", 2)
 
     optAuthor = getpass.getuser()

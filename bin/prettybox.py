@@ -81,7 +81,7 @@ def boxerize(p, m, w=-1, t="", a="", d="", o=[]):
         ret.append(toWidthString(" Options:", w, p["W"], p["E"], False))
         # determine the alignment
         maxOpt = 0
-        for i in xrange(0, len(o)):
+        for i in range(0, len(o)):
             if len(o[i]) == 2:
                 o[i] = [o[i][0], "", o[i][1]]
             elif len(o[i]) == 1:
@@ -94,7 +94,7 @@ def boxerize(p, m, w=-1, t="", a="", d="", o=[]):
                 o[i][1] = " " + o[i][1]
             maxOpt = max(maxOpt, len(o[i][0]) + len(o[i][1]))
         maxOpt = max(maxOpt, w//5 - len(p["W"] + p["E"]) - 2)
-        # print tha ligned options
+        # print the aligned options
         wrapper = textwrap.TextWrapper()
         wrapper.width = w - len(p["W"] + p["E"]) - 6 - maxOpt
         for opt in sorted(o):
@@ -145,12 +145,12 @@ def prettybox(cmd_args):
             "sh":"shell",
             "yaml":"shell",
             }
-    pieces={directions[i] : prefabs["box"][i] for i in xrange(0, len(directions))}
+    pieces={directions[i] : prefabs["box"][i] for i in range(0, len(directions))}
     try:
-        opts, args = getopt.getopt(cmd_args, "a:d:o:t:w:bDh", [d + "=" for d in directions] + ["help"] + prefabs.keys() + aliases.keys())
-    except getopt.error, msg:
-        print msg
-        print "for help use --help"
+        opts, args = getopt.getopt(cmd_args, "a:d:o:t:w:bDh", [d + "=" for d in directions] + ["help"] + [k for k in prefabs] + [k for k in aliases])
+    except getopt.error as msg:
+        print(msg)
+        print("for help use --help")
         sys.exit(2)
     for o, a in opts:
         if o == "-a":
@@ -160,14 +160,14 @@ def prettybox(cmd_args):
         elif o == "-D":
             boxes=[]
             for k in sorted(prefabs.keys()):
-                pcs = {directions[i] : prefabs[k][i] for i in xrange(0, len(directions))}
+                pcs = {directions[i] : prefabs[k][i] for i in range(0, len(directions))}
                 als = [a for (a,v) in aliases.items() if v == k]
                 msg = "aliases: " +  ", ".join(als) if als else "(no aliases)"
                 boxes.append(boxerize(pcs, msg, w=35, t=k).split("\n"))
             if len(boxes)%2 == 1:
                 boxes.append([])
-            for i in xrange(0, len(boxes), 2):
-                for j in xrange(0, max(len(boxes[i]), len(boxes[i+1]))):
+            for i in range(0, len(boxes), 2):
+                for j in range(0, max(len(boxes[i]), len(boxes[i+1]))):
                     s = 35*" " if j >= len(boxes[i]) else boxes[i][j]
                     s += " "*(36 - len(s))
                     s += 35*" " if j >= len(boxes[i+1]) else boxes[i+1][j]
@@ -177,7 +177,7 @@ def prettybox(cmd_args):
         elif o == "-d":
             date_arg = a
         elif o in ("-h", "--help"):
-            print __doc__
+            print(__doc__)
             sys.exit(0)
         elif o == "-o":
             box_options += [a.split(":")]
@@ -186,9 +186,9 @@ def prettybox(cmd_args):
         elif o == "-w":
             width = int(a)
         elif o[2:] in prefabs.keys():
-            pieces={directions[i] : prefabs[o[2:]][i] for i in xrange(0, len(directions))}
+            pieces={directions[i] : prefabs[o[2:]][i] for i in range(0, len(directions))}
         elif o[2:] in aliases.keys():
-            pieces={directions[i] : prefabs[aliases[o[2:]]][i] for i in xrange(0, len(directions))}
+            pieces={directions[i] : prefabs[aliases[o[2:]]][i] for i in range(0, len(directions))}
         else:
             pieces[o[2:]] = a # the cardinal directions
     message = " ".join(args)
@@ -198,4 +198,4 @@ def prettybox(cmd_args):
         return boxerize(pieces, message)
 
 if __name__ == "__main__":
-    print prettybox(sys.argv[1:])
+    print(prettybox(sys.argv[1:]))
