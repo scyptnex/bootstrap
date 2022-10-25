@@ -1,0 +1,53 @@
+#! /usr/bin/env bash
+
+#=========================================================================#
+#                                pythonexe                                #
+#                                                                         #
+# Author: nic                                                             #
+# Date: 2022-Oct-25                                                       #
+#                                                                         #
+# Options:                                                                #
+#   -h           Display this help message                                #
+#=========================================================================#
+
+set -e # error on non-zero exit
+set -u # undefined variables are an error
+
+function usage(){
+    grep "^#.*#$" $0
+}
+
+function errxit(){
+    [ $# -gt 0 ] && echo "Error: $@" >&2
+    echo "Re-run with -h for help" >&2
+    exit 1
+}
+
+while getopts "h" opt; do
+    case $opt in
+        h)
+            usage
+            exit 0
+            ;;
+        \?)
+            errxit Unrecognised command
+            ;;
+    esac
+done
+shift $(($OPTIND -1))
+
+echo $@
+
+MODULE_NAME="$(basename "$1")"
+BIN_DIR="$(dirname "$1")"
+PROJ_DIR="$(readlink -f "${BIN_DIR}/..")"
+ENV_DIR="${PROJ_DIR}/.env"
+
+if [ ! -d "${ENV_DIR}" ]; then
+    echo "${MODULE_NAME} is not set up" >&2
+    echo "Please run:" >&2
+    echo "    make --directory=\"${PROJ_DIR}\"" >&2
+    exit 1
+fi
+. "${ENV_DIR}/bin/activate"
+PYTHONPATH="${PROJ_DIR}" python3 -m "${MODULE_NAME}" "$@"
