@@ -36,12 +36,11 @@ while getopts "h" opt; do
 done
 shift $(($OPTIND -1))
 
-echo $@
-
 MODULE_NAME="$(basename "$1")"
 BIN_DIR="$(dirname "$1")"
 PROJ_DIR="$(readlink -f "${BIN_DIR}/..")"
 ENV_DIR="${PROJ_DIR}/.env"
+shift 1
 
 if [ ! -d "${ENV_DIR}" ]; then
     echo "${MODULE_NAME} is not set up" >&2
