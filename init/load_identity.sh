@@ -22,7 +22,7 @@ LN=`grep -na "^\-*END RSA PRIVATE KEY\-*$" $ALL | head -n 1 | cut -d ":" -f 1`
 
 head -n 1 $ALL > ~/.ssh/id_rsa.pub
 head -n $LN $ALL | tail -n +2 > ~/.ssh/id_rsa
-tail -n +$((LN + 1)) $ALL | gpg --import
+tail -n +$((LN + 1)) $ALL | gpg --batch --import
 
 # automatically imports trust level ultimate for the bootstrap key
 #KEY=`tail -n +$((LN + 1)) "$ALL" | gpg --list-packets 2>/dev/null | grep "^:user" | sed -e 's/^[^"]*"//' -e 's/"$//' | sort -u`
