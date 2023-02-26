@@ -123,7 +123,7 @@ case "$(hostname)" in
     ghesseraan|Makraan)
         PCOL=2
         ;;
-    Therauvra|annaktsourrin)
+    rpi)
         PCOL=7
         ;;
     Milotic)

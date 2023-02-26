@@ -69,23 +69,19 @@ endfunction
 
 command! -n=? Comment :call s:PrettyBox('<args>')
 
-"========"
-" VUNDLE "
-"========"
+"========="
+" PLUGINS "
+"========="
 set nocompatible
-filetype off
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-Plugin 'gmarik/Vundle.vim'
-Plugin 'psf/black'
-Plugin 'rust-lang/rust.vim'
-Plugin 'souffle-lang/souffle.vim'
+call plug#begin('~/soft')
+Plug 'psf/black'
+Plug 'rust-lang/rust.vim'
+Plug 'souffle-lang/souffle.vim'
+Plug 'Valloric/YouCompleteMe'
+" Plugin 'gmarik/Vundle.vim'
 " Bundle 'takac/vim-hardtime'
-Plugin 'Valloric/YouCompleteMe'
 " Plugin 'vtreeexplorer'
-call vundle#end() " All of your Plugins must be added before this line
-filetype plugin indent on
-"filetype plugin on
+call plug#end()
 
 "==============="
 " YOUCOMPLETEME "

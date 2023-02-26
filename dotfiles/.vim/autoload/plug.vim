@@ -1,0 +1,1 @@
+/home/nic/soft/vim-plug/plug.vim
