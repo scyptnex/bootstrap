@@ -77,7 +77,9 @@ call plug#begin('~/soft')
 Plug 'psf/black'
 Plug 'rust-lang/rust.vim'
 Plug 'souffle-lang/souffle.vim'
-Plug 'Valloric/YouCompleteMe'
+if !has('nvim')
+    Plug 'Valloric/YouCompleteMe'
+endif
 " Plugin 'gmarik/Vundle.vim'
 " Bundle 'takac/vim-hardtime'
 " Plugin 'vtreeexplorer'

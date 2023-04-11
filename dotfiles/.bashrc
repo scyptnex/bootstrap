@@ -47,6 +47,7 @@ alias histkill='for I in $(seq $(history | grep "exit$" | tail -n 1 | cut -d" " 
 alias largs='xargs -L1 -d"\n"'
 alias latexmk="latexmk -pdf"
 alias lucifer="PYTHONPATH=~/project/lucifer/ python3 -m lucifer"
+alias lucstat="systemctl status --user lucifer.service; echo ---; systemctl status --user lucifer-sunset.service; echo ---; systemctl status --user lucifer-daylight.service"
 alias opn="xdg-open"
 alias panda="pandoc -f markdown -o PANDA.pdf"
 alias psu="ps -u $(whoami)"

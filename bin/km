@@ -1,0 +1,65 @@
+#! /usr/bin/env python3
+
+import argparse
+from os.path import dirname, join
+
+# MODE=COLEMAK
+# 
+# 
+# 
+# fi="$(readlink -f $(dirname "$0")/../..)"
+# kmc="$fi/soflekm/keymap.c"
+# 
+# grep -A12 " \* $MODE$" "$kmc"
+
+def km_path():
+    return join(dirname(dirname(dirname(__file__))), "soflekm", "keymap.c")
+
+def get_layers(lines):
+    layers = []
+    nxt = False
+    for l in lines:
+        if l == "/*":
+            nxt = True
+            continue
+        if nxt:
+            layers.append(l)
+        nxt = False
+    return [l.split()[1] for l in layers]
+
+
+def match_layer(layers, choice):
+    for l in layers:
+        if l.lower().find(choice.lower()) != -1:
+            return l
+    return None
+
+def show(choice, lines):
+    going=False
+    for l in lines:
+        if l.find(" * " + choice) != -1:
+            going = True
+        if going:
+            print(l)
+            if l.find("*/") != -1:
+                return
+            continue
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-m", "--mode", default="colemak")
+
+    args = parser.parse_args()
+
+    with open(km_path(), "r") as km_file:
+        km_lines = [line.rstrip() for line in km_file]
+
+    layers = get_layers(km_lines)
+    choice = match_layer(layers, args.mode)
+
+    show(choice, km_lines)
+
+
+if __name__ == "__main__":
+    main()
