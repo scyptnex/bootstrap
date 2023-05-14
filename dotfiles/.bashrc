@@ -133,6 +133,9 @@ case "$(hostname)" in
     penguin)
         PCOL=172
         ;;
+    ekhtarro)
+        PCOL=135
+        ;;
     *)
         PCOL=0
         ;;
