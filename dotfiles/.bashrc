@@ -66,9 +66,6 @@ alias tux='tmux new-session -c ~ -A -D -s default'
 # Environment Variables #
 #=======================#
 
-if [ -d $HOME/bootstrap/bin ]; then
-    export PATH="$PATH:$HOME/bootstrap/bin"
-fi
 if [ -d $HOME/project/bootstrap/bin ]; then
     export PATH="$PATH:$HOME/project/bootstrap/bin"
 fi
