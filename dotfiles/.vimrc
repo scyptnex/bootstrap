@@ -22,11 +22,11 @@ set hlsearch
 set incsearch
 
 "colour scheme
-silent! colorscheme industry
-set background=dark
-set t_Co=256
-highlight Normal ctermbg=NONE
-highlight nonText ctermbg=NONE
+"silent! colorscheme industry
+"set background=dark
+"set t_Co=256
+"highlight Normal ctermbg=NONE
+"highlight nonText ctermbg=NONE
 
 "command area
 set cmdheight=2
