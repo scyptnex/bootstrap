@@ -1,0 +1,24 @@
+#! /usr/bin/env python3
+
+import contextlib
+import subprocess
+
+
+@contextlib.contextmanager
+def rpi_socks():
+    p = subprocess.Popen(["ssh", "-D", "31415", "-q", "-N", "rpi"])
+    try:
+        yield
+    finally:
+        p.kill()
+        p.wait()
+
+
+def main():
+    subprocess.check_call(["ssh", "rpi", "--", "echo"])
+    with rpi_socks():
+        subprocess.check_call(["firefox", "-P", "vpn"])
+
+
+if __name__ == "__main__":
+    main()
