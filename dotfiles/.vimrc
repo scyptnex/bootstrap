@@ -38,6 +38,9 @@ set number relativenumber
 set backspace=eol,start,indent
 set whichwrap+=<,>,h,l
 
+"no folding
+set nofoldenable
+
 "menu
 set wildmenu
 set wildignore=*.o,*~,*.pyc
