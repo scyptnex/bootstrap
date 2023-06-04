@@ -36,4 +36,4 @@ if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
 fi
 
-[ -f ~/.cargo/env ] && source "$HOME/.cargo/env"
+[ -f ~/.cargo/env ] && . "$HOME/.cargo/env"

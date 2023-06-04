@@ -177,4 +177,4 @@ shopt -s checkwinsize # check the terminal windo size after commands
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-[ -f ~/.cargo/env ] && source "$HOME/.cargo/env"
+[ -f ~/.cargo/env ] && . "$HOME/.cargo/env"
