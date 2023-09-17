@@ -1,1 +1,1 @@
-/home/nic/soft/vim-plug/plug.vim
+../../../../../soft/vim-plug/plug.vim
