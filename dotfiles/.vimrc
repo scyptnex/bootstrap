@@ -21,6 +21,9 @@ syntax enable
 set hlsearch
 set incsearch
 
+"viewport
+set scrolloff=5
+
 "colour scheme
 "silent! colorscheme industry
 "set background=dark
@@ -97,15 +100,21 @@ let g:ycm_enable_diagnostic_signs = 0
 let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_extra_conf_globlist = ['./*','../*','../../*','!*']
 
-"=========="
-" HARDTIME "
-"=========="
-"let g:hardtime_default_on = 1
-"let g:hardtime_allow_different_key=1
-"noremap <Up>    <esc>
-"noremap <Down>  <esc>
-"noremap <Left>  <esc>
-"noremap <Right> <esc>
+"========="
+" TRYHARD "
+"========="
+vnoremap <Up> <nop>
+vnoremap <Down> <nop>
+vnoremap <Left> <nop>
+vnoremap <Right> <nop>
+inoremap <Up> <nop>
+inoremap <Down> <nop>
+inoremap <Left> <nop>
+inoremap <Right> <nop>
+nnoremap <Up> <nop>
+nnoremap <Down> <nop>
+nnoremap <Left> <nop>
+nnoremap <Right> <nop>
 
 "========="
 " KEYMAPS "
