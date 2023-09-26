@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+
+. ~/soft/pip_qmk/bin/activate
+qmk "$@"
