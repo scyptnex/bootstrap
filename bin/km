@@ -2,25 +2,26 @@
 
 import argparse
 from os.path import dirname, join
+import os
 
-# MODE=COLEMAK
-# 
-# 
-# 
-# fi="$(readlink -f $(dirname "$0")/../..)"
-# kmc="$fi/soflekm/keymap.c"
-# 
-# grep -A12 " \* $MODE$" "$kmc"
 
-def km_path():
-    return join(dirname(dirname(dirname(__file__))), "soflekm", "keymap.c")
+def qmk_dir():
+    return join(dirname(dirname(dirname(__file__))), "qmk")
+
+
+def km_path(kb, km):
+    return join(qmk_dir(), "keyboards", kb, "keymaps", km, "keymap.c")
+
 
 def get_layers(lines):
     layers = []
     nxt = False
     for l in lines:
-        if l == "/*":
-            nxt = True
+        if l.startswith("/*"):
+            if l == "/*":
+                nxt = True
+            else:
+                layers.append(l)
             continue
         if nxt:
             layers.append(l)
@@ -34,10 +35,11 @@ def match_layer(layers, choice):
             return l
     return None
 
+
 def show(choice, lines):
-    going=False
+    going = False
     for l in lines:
-        if l.find(" * " + choice) != -1:
+        if l.find("* " + choice) != -1:
             going = True
         if going:
             print(l)
@@ -45,17 +47,31 @@ def show(choice, lines):
                 return
             continue
 
+
 def main():
     parser = argparse.ArgumentParser()
 
+    parser.add_argument("--keyboard", default="sofle")
+    parser.add_argument("--keymap", default="default")
     parser.add_argument("-m", "--mode", default="colemak")
+    parser.add_argument("-l", action="store_true", help="force mode=lower")
+    parser.add_argument("-r", action="store_true", help="force mode=raise")
+    parser.add_argument("-a", action="store_true", help="force mode=adjust")
 
     args = parser.parse_args()
 
-    with open(km_path(), "r") as km_file:
+    if args.l:
+        args.mode = "lower"
+    elif args.r:
+        args.mode = "raise"
+    elif args.a:
+        args.mode = "adjust"
+
+    with open(km_path(args.keyboard, args.keymap), "r") as km_file:
         km_lines = [line.rstrip() for line in km_file]
 
     layers = get_layers(km_lines)
+    print(layers)
     choice = match_layer(layers, args.mode)
 
     show(choice, km_lines)
