@@ -40,17 +40,15 @@ alias caly="cal $(date +%Y)"
 alias chardump="od -vAn -tax1"
 alias cman="man -P \"col -x -b\""
 alias colour='for i in {0..255};do printf "%s%3d$(tput sgr0) " "$(tput setab $i)" "$i";if (( i == 15 )) || (( i > 15 )) && (( (i-15) % 6 == 0 )); then echo;fi; done'
-alias dat="date +%F-%H:%M"
+alias dat="date +%F_%H:%M"
 alias dus='paste <(ls -A | xargs -l1 -d"\n" du -sh | cut -f 1) <(ls -AF) | sort -h'
 alias gpgrecipients="gpg --list-only --no-default-keyring --secret-keyring /dev/null"
 alias histkill='for I in $(seq $(history | grep "exit$" | tail -n 1 | cut -d" " -f2) $(history | tail -n 1 | cut -d" " -f2) | tac); do history -d $((I+1)); done'
-alias largs='xargs -L1 -d"\n"'
 alias latexmk="latexmk -pdf"
 alias lucifer="PYTHONPATH=~/project/lucifer/ python3 -m lucifer"
 alias lucstat="systemctl status --user lucifer.service; echo ---; systemctl status --user lucifer-sunset.service; echo ---; systemctl status --user lucifer-daylight.service"
 alias opn="xdg-open"
 alias panda="pandoc -f markdown -o PANDA.pdf"
-alias psu="ps -u $(whoami)"
 alias shutup="sudo apt update &&
               sudo apt -y upgrade &&
               sudo apt -y dist-upgrade &&
@@ -59,6 +57,11 @@ alias shutup="sudo apt update &&
               echo Shutting down in 10 seconds &&
               sleep 10 &&
               poweroff"
+
+function valias {
+    alias $1="echo '$(tput setaf 8)$2$(tput sgr0)';echo;$2"
+}
+source ~/.bash_aliases
 
 #=======================#
 # Environment Variables #
