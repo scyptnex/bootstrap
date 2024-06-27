@@ -59,7 +59,6 @@ alias shutup="sudo apt update &&
               echo Shutting down in 10 seconds &&
               sleep 10 &&
               poweroff"
-alias synchro='stow -Rv --dir=${HOME}/project/bootstrap/dotfiles/ --target=${HOME} --no-folding .'
 alias tux='tmux new-session -c ~ -A -D -s default'
 
 #=======================#

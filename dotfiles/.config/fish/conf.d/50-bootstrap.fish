@@ -8,7 +8,6 @@ end
 
 valias psu "ps -u (whoami)"
 valias dus 'paste (ls -A | xargs -l1 -d"\n" du -sh | cut -f 1 | psub) (ls -AF | psub) | sort -h'
-valias synchro 'stow -Rv --dir=$HOME/project/bootstrap/dotfiles/ --target=$HOME --no-folding .'
 valias largs 'xargs -L1 -d"\n"'
 
 #-------#
