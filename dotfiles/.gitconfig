@@ -13,8 +13,11 @@
     default = simple
 
 [pull]
-	ff = only
+    ff = only
 
 [user]
     email = nic.h.misc@gmail.com
     name = Scyptnex
+
+[includeIf "gitdir:~/work/"]
+    path = ~/work/work-cfg/gitconfig
