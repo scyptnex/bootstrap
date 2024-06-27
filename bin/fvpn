@@ -15,7 +15,7 @@ def rpi_socks():
 
 
 def main():
-    subprocess.check_call(["ssh", "rpi", "--", "echo"])
+    subprocess.check_call(["ssh", "rpi", "--", "expressvpn", "status"])
     with rpi_socks():
         subprocess.check_call(["firefox", "-P", "vpn"])
 
