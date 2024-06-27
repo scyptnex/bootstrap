@@ -59,7 +59,6 @@ alias shutup="sudo apt update &&
               echo Shutting down in 10 seconds &&
               sleep 10 &&
               poweroff"
-alias tux='tmux new-session -c ~ -A -D -s default'
 
 #=======================#
 # Environment Variables #

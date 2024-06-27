@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+
+set -eu
+
+function main {
+    # If overriding SSH_AUTH_SOCK, contains the override
+    local override=""
+    # Path to the overidden SSH_AUTH_SOCK
+    local tux_auth_sock="${HOME}/.ssh/tux_auth_sock"
+
+    if [ -n "${SSH_AUTH_SOCK+x}" ]; then
+        echo "rebound ${SSH_AUTH_SOCK} -> ${tux_auth_sock}"
+        ln --force --symbolic "${SSH_AUTH_SOCK}" "${tux_auth_sock}"
+        trap "rm -f ${tux_auth_sock}" EXIT
+        override="env SSH_AUTH_SOCK=${tux_auth_sock}"
+    fi
+
+    ${override} tmux new-session -c ~ -A -D -s default
+}
+
+main
