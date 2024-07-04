@@ -15,15 +15,14 @@ case $- in
       *) return;;
 esac
 
+[ -f ~/work/work-cfg/bashrc ] && source ~/work/work-cfg/bashrc
+
 #===============================#
 # Aliases (and hacky functions) #
 #===============================#
 
 # ls
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
-fi
+alias ls='ls --color=auto'
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
