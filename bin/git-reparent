@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+set -eu
+
+function main() {
+    local mbase=$(git merge-base @ @{upstream})
+    local dest=$1
+    echo "Move: "
+    git log --oneline ${mbase}..HEAD
+    echo "from: "
+    git log --oneline -1 ${mbase}
+    echo "to: "
+    git log --oneline -1 ${dest}
+    read -p "[Y/n]: "
+    case "$REPLY" in
+        n*|N* ) exit 0;;
+    esac
+    git branch --set-upstream-to=${dest}
+    git rebase --onto=${dest} ${mbase}
+}
+
+main "$@"
+
