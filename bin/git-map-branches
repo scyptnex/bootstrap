@@ -1,0 +1,50 @@
+#! /usr/bin/env python3
+
+import subprocess
+import sys
+
+# def list_remote_branches():
+#     return set(s.strip() for s in subprocess.check_output(["git", "branch", "-r"]).decode(sys.stdout.encoding).split('\n') if s.strip())
+
+def list_local_branches():
+    return [s for s in subprocess.check_output(["git", "branch", "--list", "--format=%(refname:lstrip=2)"]).decode(sys.stdout.encoding).split('\n') if s]
+
+
+def get_current_branch():
+    return subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode(sys.stdout.encoding).strip()
+
+
+def binfo(b):
+    par_cmd = subprocess.run(["git", "rev-parse", "--abbrev-ref", b+"@{u}"], check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    par_branch = "(none)"
+    if par_cmd.returncode == 0:
+        par_branch = par_cmd.stdout.decode(sys.stdout.encoding).strip()
+    return par_branch
+
+def doprint(parent, mapping, current, depth):
+    print("  "*depth + parent, end="")
+    if current == parent:
+        print("  <--")
+    else:
+        print()
+    if parent not in mapping:
+        return
+    for c in sorted(mapping[parent]):
+        doprint(c, mapping, current, depth+1)
+
+def main():
+    children={}
+    localbs=set(list_local_branches())
+    current = get_current_branch();
+    for local_branch in localbs:
+        par = binfo(local_branch)
+        if par not in children:
+            children[par] = []
+        children[par].append(local_branch)
+    for par in sorted(children):
+        if par in localbs:
+            continue
+        doprint(par, children, current, 0)
+
+if __name__ == "__main__":
+    main()

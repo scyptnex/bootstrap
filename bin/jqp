@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+
+function main() {
+    cat | sed 's/^[0-9]*://' | jq
+}
+
+main "$@"
