@@ -61,6 +61,8 @@ function valias {
     alias $1="echo '$(tput setaf 8)$2$(tput sgr0)';echo;$2"
 }
 source ~/.bash_aliases
+# In work configurations, also include work-specific ones
+[[ -f ~/work/work-cfg/bash_aliases ]] && source ~/work/work-cfg/bash_aliases
 
 #=======================#
 # Environment Variables #
