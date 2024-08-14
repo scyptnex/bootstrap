@@ -6,6 +6,53 @@ import sys
 # def list_remote_branches():
 #     return set(s.strip() for s in subprocess.check_output(["git", "branch", "-r"]).decode(sys.stdout.encoding).split('\n') if s.strip())
 
+class Branch:
+
+    def __init__(self, name):
+        self.name = name
+        self.children = {}
+
+    def add_child(self, c):
+        self.children[c.name] = c
+
+    def do_print_me(self, depth, end="\n"):
+        print("{}{}".format("  "*depth, self.name), end=end)
+
+    def do_print(self, depth, end="\n"):
+        self.do_print_me(depth)
+        for c in sorted(self.children.keys()):
+            self.children[c].do_print(depth+1)
+
+class LocalBranch(Branch):
+
+    def __init__(self, name, current_name):
+        super().__init__(name)
+        self.par_name = "(none)"
+        self.current = name == current_name
+        par_cmd = subprocess.run(["git", "rev-parse", "--abbrev-ref", self.name+"@{u}"], check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if par_cmd.returncode != 0:
+            return
+        self.par_name = par_cmd.stdout.decode(sys.stdout.encoding).strip()
+        diff_str = subprocess.check_output(["git", "rev-list", "--left-only", "--count", "{}...{}".format(self.par_name, self.name)]).decode(sys.stdout.encoding).strip()
+        self.diff = int(diff_str)
+
+    def do_print_me(self, depth):
+        super().do_print_me(depth, end="")
+        if self.diff != 0:
+            print(" [behind: {}]".format(self.diff), end="")
+        if self.current:
+            print(" <--")
+        else:
+            print()
+
+    def add_parent(self, all_b, rem_b):
+        if self.par_name not in all_b:
+            all_b[self.par_name] = Branch(self.par_name)
+            rem_b.add(self.par_name)
+        all_b[self.par_name].add_child(self)
+
+
+
 def list_local_branches():
     return [s for s in subprocess.check_output(["git", "branch", "--list", "--format=%(refname:lstrip=2)"]).decode(sys.stdout.encoding).split('\n') if s]
 
@@ -13,38 +60,15 @@ def list_local_branches():
 def get_current_branch():
     return subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode(sys.stdout.encoding).strip()
 
-
-def binfo(b):
-    par_cmd = subprocess.run(["git", "rev-parse", "--abbrev-ref", b+"@{u}"], check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    par_branch = "(none)"
-    if par_cmd.returncode == 0:
-        par_branch = par_cmd.stdout.decode(sys.stdout.encoding).strip()
-    return par_branch
-
-def doprint(parent, mapping, current, depth):
-    print("  "*depth + parent, end="")
-    if current == parent:
-        print("  <--")
-    else:
-        print()
-    if parent not in mapping:
-        return
-    for c in sorted(mapping[parent]):
-        doprint(c, mapping, current, depth+1)
-
 def main():
-    children={}
-    localbs=set(list_local_branches())
-    current = get_current_branch();
-    for local_branch in localbs:
-        par = binfo(local_branch)
-        if par not in children:
-            children[par] = []
-        children[par].append(local_branch)
-    for par in sorted(children):
-        if par in localbs:
-            continue
-        doprint(par, children, current, 0)
+    current = get_current_branch()
+    local_branches = list_local_branches()
+    branches = {name:LocalBranch(name, current) for name in local_branches}
+    remote_branches=set()
+    for b in local_branches:
+        branches[b].add_parent(branches, remote_branches)
+    for r in sorted([rb for rb in remote_branches]):
+        branches[r].do_print(0)
 
 if __name__ == "__main__":
     main()
