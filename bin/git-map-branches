@@ -54,7 +54,7 @@ class LocalBranch(Branch):
 
 
 def list_local_branches():
-    return [s for s in subprocess.check_output(["git", "branch", "--list", "--format=%(refname:lstrip=2)"]).decode(sys.stdout.encoding).split('\n') if s]
+    return [s for s in subprocess.check_output(["git", "branch", "--list", "--format=%(refname:lstrip=2)"]).decode(sys.stdout.encoding).split('\n') if s and not s.startswith("(HEAD detached at")]
 
 
 def get_current_branch():
