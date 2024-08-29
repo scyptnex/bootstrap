@@ -44,6 +44,9 @@ set whichwrap+=<,>,h,l
 "no folding
 set nofoldenable
 
+"dont try and keep modified buffers in the foreground
+set hidden
+
 "menu
 set wildmenu
 set wildignore=*.o,*~,*.pyc
