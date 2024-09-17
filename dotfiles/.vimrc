@@ -86,6 +86,7 @@ call plug#begin('~/soft')
 Plug 'psf/black'
 Plug 'rust-lang/rust.vim'
 Plug 'souffle-lang/souffle.vim'
+Plug 'junegunn/fzf'
 if !has('nvim')
     Plug 'Valloric/YouCompleteMe'
 endif
@@ -131,6 +132,10 @@ nnoremap <leader>p gqip
 nnoremap <leader>d :Ex<cr>
 nnoremap <leader>h :split<cr>
 nnoremap <leader>v :vsplit<cr>
+
+nnoremap <leader>sc :e %:p:s,_test.cpp$,_EXPAND_,:s,.h$,_EXPAND_,:s,.cpp$,_EXPAND_,:s,_EXPAND_$,.cpp,<cr>
+nnoremap <leader>sh :e %:p:s,_test.cpp$,_EXPAND_,:s,.h$,_EXPAND_,:s,.cpp$,_EXPAND_,:s,_EXPAND_$,.h,<cr>
+nnoremap <leader>st :e %:p:s,_test.cpp$,_EXPAND_,:s,.h$,_EXPAND_,:s,.cpp$,_EXPAND_,:s,_EXPAND_$,_test.cpp,<cr>
 
 "ycm completion
 nnoremap <leader>g :YcmCompleter GoTo<CR>
