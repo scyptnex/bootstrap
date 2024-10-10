@@ -48,7 +48,8 @@ set nofoldenable
 set hidden
 
 "menu
-set wildmenu
+set wildmenu " pops up a menu when you hit <tab>
+set wildmode=list " only shows the completions, does not try to pick one
 set wildignore=*.o,*~,*.pyc
 if has("win16") || has("win32")
     set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
@@ -87,6 +88,7 @@ Plug 'psf/black'
 Plug 'rust-lang/rust.vim'
 Plug 'souffle-lang/souffle.vim'
 Plug 'junegunn/fzf'
+Plug 'jremmen/vim-ripgrep'
 if !has('nvim')
     Plug 'Valloric/YouCompleteMe'
 endif
