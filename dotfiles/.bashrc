@@ -135,6 +135,9 @@ case "$(hostname)" in
     ekhtarro)
         PCOL=135
         ;;
+    ip-*-*-*-*)
+        PCOL=227
+        ;;
     *)
         PCOL=0
         ;;
