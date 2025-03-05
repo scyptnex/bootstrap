@@ -19,3 +19,7 @@ source ~/.bash_aliases
 if [ -d ~/project/bootstrap/bin ]
     set -g PATH $PATH ~/project/bootstrap/bin
 end
+
+if [ -d ~/.local/bin ]
+    set -g PATH $PATH ~/.local/bin
+end
