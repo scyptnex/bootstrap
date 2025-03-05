@@ -1,0 +1,59 @@
+#! /usr/bin/env bash
+
+set -eu
+
+function ux() {
+    echo "$1"
+    echo
+    echo "Usage: $(basename "$0") [movie/video/music] [pattern] ..."
+    exit 1
+}
+
+function prompt(){
+    read -p "Continue? [y/N]: " ANSWER
+    if [[ "$ANSWER" =~ ^[yY].* ]]; then
+        return 0
+    fi
+    return 1
+}
+
+function findr(){
+    local path="$1"
+    shift 1
+    local pattern="$(echo " $@ " | sed 's/ /*/g')"
+    find "$path" -maxdepth 1 -iname "$pattern"
+}
+
+if [ $# -lt 2 ]; then
+    ux "not enough arguments"
+fi
+
+SOURCE="/mnt/bhayith"
+CATEGORY="$1"
+shift 1
+case "$CATEGORY" in
+    "movie" )
+        OUTPUT="/mnt/zaisha/movies"
+        ;;
+    "video" )
+        OUTPUT="$(findr "/mnt/zaisha/videos" "$@" | head -n 1)"
+        ;;
+    "music" )
+        OUTPUT="/mnt/ragnarok/music"
+        ;;
+    * )
+        ux "unrecognized category $1"
+        ;;
+esac
+
+echo "Move:"
+findr "$SOURCE" "$@"
+echo "To:"
+echo "$OUTPUT"
+echo
+prompt || exit 0
+
+findr "$SOURCE" "$@" | while read LINE; do
+    rsync --recursive --progress --remove-source-files "$LINE" "$OUTPUT"
+    rmdir "$LINE" || echo "not removing directory"
+done
