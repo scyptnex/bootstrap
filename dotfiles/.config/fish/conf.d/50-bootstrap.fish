@@ -23,3 +23,11 @@ end
 if [ -d ~/.local/bin ]
     set -g PATH $PATH ~/.local/bin
 end
+
+if [ -d ~/work/work-cfg/bin ]
+    set -g PATH $PATH ~/work/work-cfg/bin
+end
+
+if [ -d ~/work/rss-tooling/bin ]
+    set -g PATH $PATH ~/work/rss-tooling/bin
+end
