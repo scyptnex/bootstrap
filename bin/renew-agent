@@ -1,0 +1,19 @@
+#! /usr/bin/env bash
+
+RA_ORIGINAL_AUTH_SOCK="${SSH_AUTH_SOCK}"
+
+RA_REAL_PATH="$(readlink -m "${RA_ORIGINAL_AUTH_SOCK}")"
+
+if [ -e "${RA_REAL_PATH}" ]; then
+    echo "Keeping: ${RA_ORIGINAL_AUTH_SOCK} -> ${RA_REAL_PATH}"
+    return
+fi
+
+RA_EXISTING=( /tmp/ssh-XX*/agent.* )
+RA_EXISTING="${RA_EXISTING[0]}"
+if [ -e "${RA_EXISTING}" ]; then
+    echo "Re-using: ${RA_EXISTING}"
+    export SSH_AUTH_SOCK="${RA_EXISTING}"
+    return
+fi
+echo TODO

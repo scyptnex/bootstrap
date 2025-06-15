@@ -9,6 +9,7 @@ function main {
     local tux_auth_sock="${HOME}/.ssh/tux_auth_sock"
 
     if [ -n "${SSH_AUTH_SOCK+x}" ]; then
+        source `which renew-agent`
         echo "rebound ${SSH_AUTH_SOCK} -> ${tux_auth_sock}"
         ln -fs "${SSH_AUTH_SOCK}" "${tux_auth_sock}"
         trap "rm -f ${tux_auth_sock}" EXIT
