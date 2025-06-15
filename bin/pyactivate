@@ -1,0 +1,16 @@
+#! /usr/bin/env bash
+
+PYAC_FILE=""
+PYAC_MULTI=""
+
+for FILE in */bin/activate; do
+    if [ -n "$PYAC_FILE" ]; then
+        PYAC_MULTI="true"
+        echo "Dupcate env: $PYAC_FILE, $FILE"
+    fi
+    PYAC_FILE="$FILE"
+done
+
+if [ -z "$PYAC_MULTI" ]; then
+    . "$PYAC_FILE"
+fi
