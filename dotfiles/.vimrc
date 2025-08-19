@@ -63,6 +63,10 @@ endif
 au BufNewFile,BufRead *.groovy  setf groovy
 au BufNewFile,BufRead *.gradle  setf groovy
 
+" Make all swapfiles appear in a certain directory rather than next to their
+" original file. "//" means to emulate subdirs with % to keep unique.
+set directory=~/.vim/swapfiles//
+
 "=========="
 " COMMANDS "
 "=========="
