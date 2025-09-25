@@ -4,7 +4,7 @@
     lgl = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit @ @{upstream} --
     lgdc = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     current = rev-parse --abbrev-ref HEAD
-    upstream-diff = diff @{u}
+    nb = checkout origin/master -b
 
 [color]
     ui = auto
