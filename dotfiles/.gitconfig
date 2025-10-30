@@ -6,6 +6,9 @@
     current = rev-parse --abbrev-ref HEAD
     nb = checkout origin/master -b
 
+[init]
+	defaultBranch = main
+
 [color]
     ui = auto
 
