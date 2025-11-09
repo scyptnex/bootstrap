@@ -55,5 +55,7 @@ prompt || exit 0
 
 findr "$SOURCE" "$@" | while read LINE; do
     rsync --recursive --progress --remove-source-files "$LINE" "$OUTPUT"
-    rmdir "$LINE" || echo "not removing directory"
+    if [ -d "$LINE" ]; then
+        find "$LINE" -type d | sort -r | xargs --delimiter="\n" rmdir
+    fi
 done
