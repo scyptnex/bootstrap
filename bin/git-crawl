@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+
+set -eux
+
+MERGE_BASE="$(git merge-base HEAD @{u})"
+NXT_COMMIT="$(git log --oneline ${MERGE_BASE}..@{u} --author='Nic' | tail -n 1 | cut -d ' ' -f 1)"
+git merge "${NXT_COMMIT}"

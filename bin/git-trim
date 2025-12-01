@@ -1,0 +1,26 @@
+#! /usr/bin/env bash
+
+set -eu
+
+UPS="${1:-origin/master}"
+UPS_REV="$(git rev-parse ${UPS})"
+
+git checkout "${UPS#*/}"
+
+git branch -l | sed 's/^.* //' | while read LINE; do
+    LN_REV="$(git rev-parse "$LINE"@{u} 2>/dev/null || echo)"
+    # Skip branches with a different upstream
+    if [ "${LN_REV}" != "${UPS_REV}" ]; then
+        continue
+    fi
+    # Skip same-name
+    if [[ "${UPS}" =~ .*"$LINE" ]]; then
+        continue
+    fi
+    # Skip nonempty
+    MB="$(git merge-base ${LINE} ${UPS})"
+    if [ ! -z "$(git diff "$LINE" "$MB")" ]; then
+        continue
+    fi
+    git branch -D "$LINE"
+done
