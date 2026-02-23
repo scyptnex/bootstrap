@@ -13,7 +13,6 @@
     ui = auto
 
 [core]
-    editor = vim
 	excludesfile = ~/.gitignore
 
 [push]

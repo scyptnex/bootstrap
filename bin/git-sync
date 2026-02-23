@@ -1,0 +1,15 @@
+#! /usr/bin/env bash
+
+set -eu
+
+function git_sync_branch() {
+    git switch "$1"
+    git merge || git merge --abort
+}
+
+function main() {
+    git switch master
+    git siblings | while read LINE; do git_sync_branch "$LINE"; done
+}
+
+main "$@"

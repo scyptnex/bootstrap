@@ -1,0 +1,28 @@
+#! /usr/bin/env bash
+
+set -eu
+
+function root_ancestor(){
+    local b="$(git rev-parse --abbrev-ref "$1@{u}" 2>/dev/null)"
+    if [ -z "$b" ]; then
+        echo $1
+    else
+        root_ancestor "$b"
+    fi
+}
+
+function filter_anc() {
+    while read LINE; do
+        local parent="$(git rev-parse --abbrev-ref "$LINE@{u}" 2>/dev/null)"
+        if [ "$parent" == "$1" -a "origin/$LINE" != "$parent" ]; then
+            echo $LINE
+        fi
+    done
+}
+
+function main(){
+    local anc="$(root_ancestor "HEAD")"
+    git branch -l | sed 's/^.* //' | filter_anc "$anc"
+}
+
+main "$@"
