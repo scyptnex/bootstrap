@@ -1,0 +1,13 @@
+#! /usr/bin/env bash
+
+set -eu
+
+function main(){
+    local cur="$(git rev-parse --abbrev-ref HEAD)"
+    local ups="$(git rev-parse --abbrev-ref @{u})"
+    exit 99
+    git switch -c "TEMP_SQUASH_BRANCH"
+    git reset --hard "${ups}"
+}
+
+main "$@"
