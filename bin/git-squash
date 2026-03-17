@@ -5,9 +5,14 @@ set -eu
 function main(){
     local cur="$(git rev-parse --abbrev-ref HEAD)"
     local ups="$(git rev-parse --abbrev-ref @{u})"
-    exit 99
     git switch -c "TEMP_SQUASH_BRANCH"
     git reset --hard "${ups}"
+    git merge --squash "${cur}"
+    git commit -m "squash"
+    git switch "${cur}"
+    git branch -C "OLD_SQUASH"
+    git reset --hard "TEMP_SQUASH_BRANCH"
+    git branch -D "TEMP_SQUASH_BRANCH"
 }
 
 main "$@"
