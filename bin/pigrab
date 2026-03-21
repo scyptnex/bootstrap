@@ -24,11 +24,13 @@ function findr(){
     find "$path" -maxdepth 1 -iname "$pattern"
 }
 
+SOURCE="/mnt/bhayith"
 if [ $# -lt 2 ]; then
+    ls -lth "${SOURCE}"
+    echo
     ux "not enough arguments"
 fi
 
-SOURCE="/mnt/bhayith"
 CATEGORY="$1"
 shift 1
 case "$CATEGORY" in
