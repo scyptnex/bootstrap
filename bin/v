@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+VEDIT=vim
+
+if [ -d ~/.config/nvim ]; then
+    VEDIT=nvim
+fi
+
+exec $VEDIT "$@"
