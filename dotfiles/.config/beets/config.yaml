@@ -1,6 +1,6 @@
 directory: ~/Music
 
-plugins: fetchart embedart
+plugins: fetchart embedart edit musicbrainz fromfilename random
 
 #===========#
 # Album Art #

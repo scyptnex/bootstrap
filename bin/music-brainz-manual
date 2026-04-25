@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+set -eu
+
+main ()
+{
+    while read LINE; do
+        local id="${LINE%%,*}"
+        local fn="${LINE#*,}"
+        echo "A" | beet import --singletons --search-id="$id" "$fn"
+    done
+}
+main

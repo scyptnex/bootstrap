@@ -1,0 +1,14 @@
+#! /usr/bin/env bash
+
+set -eux
+
+get_release_json ()
+{
+    local id="$1"
+    local out="musicbrainz_${id}.json"
+    local url="https://musicbrainz.org/ws/2/release/${id}?fmt=json&inc=recordings"
+    [ -e "${out}" ] && exit 1
+    curl --output "${out}" "${url}"
+}
+
+get_release_json "$@"
