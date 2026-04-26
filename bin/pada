@@ -1,0 +1,19 @@
+#! /usr/bin/env bash
+
+set -e # error on non-zero exit
+set -u # undefined variables are an error
+
+main ()
+{
+    local mpd_dir="${HOME}/Music/"
+    local tf="$(mktemp)"
+    trap "rm -f $tf" EXIT
+    beet ls -ap | sed "s:^${mpd_dir}::" > "${tf}"
+    local chosen="$(fzf < "${tf}")"
+    [ -z "${chosen}" ] && echo "nvm then" && return 0
+    mpc clear > /dev/null
+    mpc -vv add "${chosen}"
+    mpc play
+}
+
+main "$@"
