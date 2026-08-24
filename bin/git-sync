@@ -3,7 +3,7 @@
 set -eu
 
 function git_sync_branch() {
-    git switch "$1"
+    git switch "$1" || return 0
     git merge || git merge --abort
 }
 
