@@ -5,6 +5,7 @@
     lgl = lgdc @ @{upstream} --
     current = rev-parse --abbrev-ref HEAD
     nb = checkout origin/master -b
+    df = -c diff.external=difft diff
 
 [init]
 	defaultBranch = main

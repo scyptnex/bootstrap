@@ -1,1 +1,5 @@
 .*.swp
+
+# Claude settings per-git-dir
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

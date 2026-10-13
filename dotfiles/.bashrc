@@ -86,7 +86,7 @@ if [ -d $HOME/soft/usr ]; then
     export PATH="$PATH:$HOME/soft/usr/bin"
 fi
 if [ -d $HOME/.local/bin ]; then
-    export PATH="$PATH:$HOME/.local/bin"
+    export PATH="$HOME/.local/bin:$PATH"
 fi
 export GRADLE_OPTS="-Dorg.gradle.daemon=true"
 export EDITOR=vim
@@ -186,3 +186,8 @@ shopt -s checkwinsize # check the terminal windo size after commands
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 [ -f ~/.cargo/env ] && . "$HOME/.cargo/env"
+
+export PATH="$HOME/go-sdk/bin:$HOME/go/bin:$PATH"
+
+# opencode
+export PATH=/home/ubuntu/.opencode/bin:$PATH
